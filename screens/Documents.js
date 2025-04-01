@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, StatusBar, StyleSheet, ActivityIndicator, TouchableOpacity, Image, Modal, Button, TextInput } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { LoginButton } from '../components/Buttons';
+import RoomatesListCard from '../components/RoomatesListCard';
 
 const primaryColor = "#3e1952";
 
 const budgetIcon = require(".././assets/budgetIcon.png");
 const historyIcon = require(".././assets/historyIcon.png");
 const paymentMethodsImage = require(".././assets/paymentsMethod.jpg");
+const personImage = require(".././assets/person.jpg");
 
 const documentsList = [
   { key: '1', value: 'Lease Document', uri: 'https://css4.pub/2015/icelandic/dictionary.pdf', expiryDate: '2025-12-31' },
@@ -43,8 +45,9 @@ export function Documents({ navigation }) {
       <StatusBar barStyle="light-content" />
 
       {/* Header Title */}
-      <Text style={styles.header}>Documents & Bills</Text>
-      <Text style={styles.description}>Select a document or bill to view or download. </Text>
+      {/* <Text style={styles.header}>Documents & Bills</Text>
+      <Text style={styles.description}>Select a document or bill to view or download. </Text> */}
+
 
       {/* Conditional Rendering DOCUMENTS/BILLS */}
       {isDocumentsVisible ? (
@@ -59,6 +62,12 @@ export function Documents({ navigation }) {
       ) : (
         <View>
           <View style={styles.section}>
+
+            <Text style={styles.header}>Roomates</Text>
+            <RoomatesListCard profilePicture={personImage} name="John Doe" paymentStatus="paid" />
+            <RoomatesListCard profilePicture={personImage} name="Yafet Tekleab" paymentStatus="Not paid" />
+            <RoomatesListCard profilePicture={personImage} name="Abdurrahman Almouna" paymentStatus="Not paid" />
+            
             <Text style={styles.sectionHeader}>Bills</Text>
             {billsList.map(bill => (
               <Card key={bill.key} title={bill.value} onPress={() => documentToggle(bill.uri)} expiryDate={"SEP-2024 - OCT-2024"} />
@@ -339,7 +348,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     margin:10,
-},
+  },
 
 
 });
