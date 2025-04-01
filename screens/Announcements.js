@@ -107,7 +107,6 @@ export function AnnouncementsScreen({ navigation }) {
     }
     catch(error)
     {
-      console.log("Error updating announcements.", error);
       alert("Failed to update announcement. Please try again later.");
     }
   };

@@ -38,7 +38,6 @@ import { collection, addDoc,setDoc, getDocs, updateDoc, deleteDoc, doc, Timestam
       
 //     });
 
-//     console.log("Apartment created successfully");
 //   } catch (e) {
 //     console.error("Error adding apartment: ", e);
 //   }
@@ -51,7 +50,6 @@ export const addDocument = async (collectionName, data) => {
         ...data,
         createdAt: Timestamp.fromDate(new Date()), // Store as Firestore Timestamp
       });
-    console.log("Document written with ID: ", docRef.id);
     return docRef.id; 
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -79,7 +77,6 @@ export const updateDocument = async (collectionName, id, data) => {
   const docRef = doc(db, collectionName, id);
   try {
     await updateDoc(docRef, data);
-    console.log("Document updated with ID: ", id);
   } catch (e) {
     console.error("Error updating document: ", e);
     throw e;
@@ -91,7 +88,6 @@ export const deleteDocument = async (collectionName, id) => {
   const docRef = doc(db, collectionName, id);
   try {
     await deleteDoc(docRef);
-    console.log("Document deleted with ID: ", id);
   } catch (e) {
     console.error("Error deleting document: ", e);
     throw e;
@@ -105,7 +101,6 @@ export const updateStatus = async (requestId, newStatus) => {
         await updateDoc(requestRef, {
             status: newStatus,
         });
-        console.log("Status updated successfully");
     } catch (error) {
         console.error("Error updating status:", error);
     }
