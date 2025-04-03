@@ -126,8 +126,16 @@ export function Events({ navigation }) {
     .filter(event => {
       const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.details.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDate = selectedDate ? event.date === selectedDate : true;
-      return matchesSearch && matchesDate;
+
+      // If there are no events on the selected date, show upcoming events
+      const eventsOnSelectedDate = upcomingEvents.filter(e => e.date === selectedDate);
+      if (eventsOnSelectedDate.length === 0) {
+        // Show events from today onwards
+        return matchesSearch && new Date(event.date) >= new Date(getCurrentDate());
+      }
+
+      // If there are events on the selected date, show only those
+      return matchesSearch && event.date === selectedDate;
     })
     .sort((a, b) => {
       if (sortBy === 'date') {
