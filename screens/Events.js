@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, FlatList, Modal, TouchableOpacity, TextInput, A
 import { Calendar } from 'react-native-calendars';
 import { Swipeable } from 'react-native-gesture-handler';
 import { Feather } from 'react-native-vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDocument, fetchDocuments, updateDocument, deleteDocument } from '../Functions';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
+import { useFocusEffect } from '@react-navigation/native';
 
 const primaryColor = "#3e1952"
 
@@ -32,12 +34,33 @@ export function Events({ navigation }) {
   const [newEvent, setNewEvent] = useState({
     title: '',
     date: '',
+    displayDate: '',
     details: '',
     category: 'COMMUNITY',
   });
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Get current date in local timezone
+  const getCurrentDate = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [selectedDate, setSelectedDate] = useState(getCurrentDate());
+  const [tempDate, setTempDate] = useState(new Date());
 
   const scrollViewRef = useRef(null);
   const searchInputRef = useRef(null);
+
+  // Update useFocusEffect to use the new getCurrentDate function
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedDate(getCurrentDate());
+    }, [])
+  );
 
   // Fetch user information once when component mounts
   useEffect(() => {
@@ -100,10 +123,12 @@ export function Events({ navigation }) {
   };
 
   const filteredEvents = upcomingEvents
-    .filter(event =>
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.details.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter(event => {
+      const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.details.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDate = selectedDate ? event.date === selectedDate : true;
+      return matchesSearch && matchesDate;
+    })
     .sort((a, b) => {
       if (sortBy === 'date') {
         return new Date(a.date) - new Date(b.date);
@@ -258,6 +283,25 @@ export function Events({ navigation }) {
     }, 100);
   };
 
+  const handleDateChange = (date) => {
+    // Parse the date string directly to avoid timezone issues
+    const [year, month, day] = date.split('-');
+    const selectedDate = new Date(year, month - 1, day); // month is 0-based in JS Date
+    setSelectedDate(date);
+
+    const formattedDate = selectedDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    setNewEvent({ ...newEvent, date: date, displayDate: formattedDate });
+  };
+
+  const handleConfirmDate = () => {
+    setShowDatePicker(false);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -265,7 +309,18 @@ export function Events({ navigation }) {
         style={styles.container}
       >
         <Calendar
-          markedDates={markedDates}
+          current={selectedDate}
+          markedDates={{
+            ...markedDates,
+            [selectedDate]: {
+              ...markedDates[selectedDate],
+              selected: true,
+              selectedColor: primaryColor,
+            },
+          }}
+          onDayPress={(day) => {
+            setSelectedDate(day.dateString);
+          }}
           theme={{
             calendarBackground: '#fff',
             todayTextColor: primaryColor,
@@ -274,7 +329,7 @@ export function Events({ navigation }) {
             arrowColor: primaryColor,
             textSectionTitleColor: primaryColor,
             selectedDayBackgroundColor: primaryColor,
-            selectedDayTextColor: primaryColor,
+            selectedDayTextColor: '#ffffff',
             'stylesheet.day.basic': {
               base: {
                 width: 32,
@@ -443,13 +498,67 @@ export function Events({ navigation }) {
                         <Feather name="calendar" size={20} color={primaryColor} />
                         <Text style={styles.inputLabelText}>Event Date</Text>
                       </View>
-                      <TextInput
-                        style={styles.modalInput}
-                        placeholder="YYYY-MM-DD"
-                        value={newEvent.date}
-                        onChangeText={(text) => setNewEvent({ ...newEvent, date: text })}
-                      />
+                      <TouchableOpacity
+                        style={styles.datePickerButton}
+                        onPress={() => setShowDatePicker(true)}>
+                        <Text style={styles.datePickerButtonText}>
+                          {newEvent.displayDate || 'Select Date'}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
+
+                    {/* Custom Date Picker Modal */}
+                    <Modal
+                      visible={showDatePicker}
+                      transparent={true}
+                      animationType="slide"
+                      onRequestClose={() => setShowDatePicker(false)}>
+                      <View style={styles.datePickerModalContainer}>
+                        <View style={styles.datePickerModalContent}>
+                          <View style={styles.datePickerHeader}>
+                            <Text style={styles.datePickerTitle}>Select Date</Text>
+                            <TouchableOpacity
+                              onPress={() => setShowDatePicker(false)}
+                              style={styles.datePickerCloseButton}>
+                              <Feather name="x" size={24} color="#666" />
+                            </TouchableOpacity>
+                          </View>
+                          <Calendar
+                            current={selectedDate}
+                            onDayPress={(day) => {
+                              handleDateChange(day.dateString);
+                            }}
+                            markedDates={{
+                              [selectedDate]: {
+                                selected: true,
+                                selectedColor: primaryColor,
+                              },
+                            }}
+                            minDate={new Date().toISOString().split('T')[0]}
+                            theme={{
+                              selectedDayBackgroundColor: primaryColor,
+                              selectedDayTextColor: '#ffffff',
+                              todayTextColor: primaryColor,
+                              dayTextColor: '#2d4150',
+                              textDisabledColor: '#d9e1e8',
+                              dotColor: primaryColor,
+                            }}
+                          />
+                          <View style={styles.datePickerFooter}>
+                            <TouchableOpacity
+                              style={[styles.datePickerButton, styles.datePickerCancelButton]}
+                              onPress={() => setShowDatePicker(false)}>
+                              <Text style={styles.datePickerCancelButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[styles.datePickerButton, styles.datePickerConfirmButton]}
+                              onPress={handleConfirmDate}>
+                              <Text style={styles.datePickerConfirmButtonText}>Confirm</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      </View>
+                    </Modal>
 
                     <View style={styles.inputGroup}>
                       <View style={styles.inputLabel}>
@@ -798,5 +907,67 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 5,
     flexGrow: 1,
+  },
+  datePickerButton: {
+    width: '100%',
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#f8f8f8',
+    justifyContent: 'center',
+  },
+  datePickerButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  datePickerModalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  datePickerModalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  datePickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  datePickerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  datePickerCloseButton: {
+    padding: 5,
+  },
+  datePickerFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 20,
+    gap: 10,
+  },
+  datePickerCancelButton: {
+    backgroundColor: '#f0f0f0',
+  },
+  datePickerConfirmButton: {
+    backgroundColor: primaryColor,
+  },
+  datePickerCancelButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  datePickerConfirmButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
