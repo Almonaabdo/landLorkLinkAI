@@ -10,7 +10,7 @@
 */
 
 import { db } from './firebaseConfig';
-import { collection, addDoc,setDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, setDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 
 // Create Apartments table
 // export const createApartment = async (apartment) => {
@@ -35,7 +35,7 @@ import { collection, addDoc,setDoc, getDocs, updateDoc, deleteDoc, doc, Timestam
 //       occupied: apartment.occupied,
 //       est: apartment.est,
 //       userId: apartment.userId
-      
+
 //     });
 
 //   } catch (e) {
@@ -47,28 +47,34 @@ import { collection, addDoc,setDoc, getDocs, updateDoc, deleteDoc, doc, Timestam
 export const addDocument = async (collectionName, data) => {
   try {
     const docRef = await addDoc(collection(db, collectionName), {
-        ...data,
-        createdAt: Timestamp.fromDate(new Date()), // Store as Firestore Timestamp
-      });
-    return docRef.id; 
+      ...data,
+      createdAt: Timestamp.fromDate(new Date()), // Store as Firestore Timestamp
+    });
+    return docRef.id;
   } catch (e) {
     console.error("Error adding document: ", e);
-    throw e; 
+    throw e;
   }
 };
 
 // Fetch data
 export const fetchDocuments = async (collectionName) => {
+  try {
     const querySnapshot = await getDocs(collection(db, collectionName));
     const documents = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt.toDate(), // Convert Firestore Timestamp to JS Date
-        };
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate(), // Convert Firestore Timestamp to JS Date
+        createdBy: data.createdBy || null, // Ensure createdBy is included
+      };
     });
     return documents;
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    throw error;
+  }
 };
 
 
@@ -96,12 +102,12 @@ export const deleteDocument = async (collectionName, id) => {
 
 // Update Status
 export const updateStatus = async (requestId, newStatus) => {
-    try {
-        const requestRef = doc(db, 'repairRequests', requestId);
-        await updateDoc(requestRef, {
-            status: newStatus,
-        });
-    } catch (error) {
-        console.error("Error updating status:", error);
-    }
+  try {
+    const requestRef = doc(db, 'repairRequests', requestId);
+    await updateDoc(requestRef, {
+      status: newStatus,
+    });
+  } catch (error) {
+    console.error("Error updating status:", error);
+  }
 };

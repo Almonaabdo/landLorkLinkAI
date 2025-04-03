@@ -67,7 +67,7 @@ export function Documents({ navigation }) {
             <RoomatesListCard profilePicture={personImage} name="John Doe" paymentStatus="paid" />
             <RoomatesListCard profilePicture={personImage} name="Yafet Tekleab" paymentStatus="Not paid" />
             <RoomatesListCard profilePicture={personImage} name="Abdurrahman Almouna" paymentStatus="Not paid" />
-            
+
             <Text style={styles.sectionHeader}>Bills</Text>
             {billsList.map(bill => (
               <Card key={bill.key} title={bill.value} onPress={() => documentToggle(bill.uri)} expiryDate={"SEP-2024 - OCT-2024"} />
@@ -164,8 +164,8 @@ export function Documents({ navigation }) {
 
           {/* TOP HEADER SECTION */}
           <View style={styles.paymentModalHeader}>
-            <Text style={[styles.headerText, { marginLeft: "40%", marginTop:"10%" }]}> Payments </Text>
-            <TouchableOpacity onPress={() => {setIsPaymentModalVisible(false)}} style={{marginTop:"10%"}}>
+            <Text style={[styles.headerText, { marginLeft: "40%", marginTop: "10%" }]}> Payments </Text>
+            <TouchableOpacity onPress={() => { setIsPaymentModalVisible(false) }} style={{ marginTop: "10%" }}>
               <Text style={styles.headerText}> Cancel</Text>
             </TouchableOpacity>
           </View>
@@ -344,10 +344,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  icon:{
+  icon: {
     width: 30,
     height: 30,
-    margin:10,
+    margin: 10,
   },
 
 

@@ -3,7 +3,14 @@ import { View, Text, StyleSheet, FlatList, Modal, TouchableOpacity, TextInput, A
 import { Calendar } from 'react-native-calendars';
 import { Swipeable } from 'react-native-gesture-handler';
 import { Feather } from 'react-native-vector-icons';
+import { addDocument, fetchDocuments, updateDocument, deleteDocument } from '../Functions';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
+
 const primaryColor = "#3e1952"
+
+
 
 const EVENT_CATEGORIES = {
   COMMUNITY: { label: 'Community', color: '#4CAF50' },
@@ -20,6 +27,8 @@ export function Events({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('date'); // 'date' or 'category'
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [userInfoMap, setUserInfoMap] = useState(new Map()); // Store user information
   const [newEvent, setNewEvent] = useState({
     title: '',
     date: '',
@@ -30,37 +39,53 @@ export function Events({ navigation }) {
   const scrollViewRef = useRef(null);
   const searchInputRef = useRef(null);
 
+  // Fetch user information once when component mounts
   useEffect(() => {
-    const fetchedEvents = [
-      {
-        id: '1',
-        date: '2024-10-10',
-        title: 'Community Meeting',
-        details: 'Discuss community initiatives.',
-        category: 'COMMUNITY',
-        reminder: true
-      },
-      {
-        id: '2',
-        date: '2024-10-15',
-        title: 'Maintenance Day',
-        details: 'Regular maintenance of community areas.',
-        category: 'MAINTENANCE',
-        reminder: false
-      },
-      {
-        id: '3',
-        date: '2024-10-31',
-        title: 'Halloween Party',
-        details: 'Fun activities and treats for all ages!',
-        category: 'SOCIAL',
-        reminder: true
-      },
-    ];
+    const fetchUserInfo = async () => {
+      try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (!user) return;
 
-    setEvents(fetchedEvents);
-    updateMarkedDates(fetchedEvents);
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const creatorName = `${userData.firstName} ${userData.lastName}`;
+          setUserInfoMap(prev => new Map(prev).set(user.uid, creatorName));
+        }
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+
+    fetchUserInfo();
   }, []);
+
+  // Fetch events
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setIsLoading(true);
+        const events = await fetchDocuments('events');
+
+        // Add creator names to events using the stored userInfoMap
+        const eventsWithUserInfo = events.map(event => ({
+          ...event,
+          creatorName: userInfoMap.get(event.createdBy) || 'Unknown User'
+        }));
+
+        setEvents(eventsWithUserInfo);
+        updateMarkedDates(eventsWithUserInfo);
+      } catch (error) {
+        console.error('Error in fetchEvents:', error);
+        Alert.alert('Error', 'Failed to fetch events');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [userInfoMap]); // Re-fetch events when userInfoMap changes
 
   const updateMarkedDates = (events) => {
     const newMarkedDates = {};
@@ -86,23 +111,53 @@ export function Events({ navigation }) {
       return a.category.localeCompare(b.category);
     });
 
-  const handleAddEvent = () => {
+  const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.date || !newEvent.details) {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
 
-    const newEventObj = {
-      id: String(upcomingEvents.length + 1),
-      ...newEvent,
-      reminder: false,
-    };
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-    const updatedEvents = [...upcomingEvents, newEventObj];
-    setEvents(updatedEvents);
-    updateMarkedDates(updatedEvents);
-    setShowAddModal(false);
-    setNewEvent({ title: '', date: '', details: '', category: 'COMMUNITY' });
+    if (!user) {
+      Alert.alert('Error', 'Please login to add an event');
+      return;
+    }
+
+    try {
+      // Get creator name from the map
+      const creatorName = userInfoMap.get(user.uid) || 'Unknown User';
+
+      // Add the event with both the user ID and name
+      const eventId = await addDocument('events', {
+        title: newEvent.title,
+        date: newEvent.date,
+        details: newEvent.details,
+        category: newEvent.category || 'COMMUNITY',
+        createdBy: user.uid,
+        creatorName: creatorName,
+        createdAt: new Date(),
+        reminder: false,
+      });
+
+      // Fetch updated events list
+      const updatedEvents = await fetchDocuments('events');
+      const eventsWithUserInfo = updatedEvents.map(event => ({
+        ...event,
+        creatorName: userInfoMap.get(event.createdBy) || 'Unknown User'
+      }));
+
+      setEvents(eventsWithUserInfo);
+      updateMarkedDates(eventsWithUserInfo);
+
+      // Reset form and close modal
+      setShowAddModal(false);
+      setNewEvent({ title: '', date: '', details: '', category: 'COMMUNITY' });
+    } catch (error) {
+      console.error('Error adding event:', error);
+      Alert.alert('Error', 'Failed to add event');
+    }
   };
 
   const toggleReminder = (eventId) => {
@@ -114,10 +169,39 @@ export function Events({ navigation }) {
     setEvents(updatedEvents);
   };
 
-  const deleteEvent = (eventId) => {
-    const updatedEvents = upcomingEvents.filter(event => event.id !== eventId);
-    setEvents(updatedEvents);
-    updateMarkedDates(updatedEvents);
+  // Deletes an event from both the database and local state
+  // @param {string} eventId - The unique identifier of the event to delete
+  const deleteEvent = async (eventId) => {
+    // Show confirmation dialog to prevent accidental deletions
+    Alert.alert(
+      'Confirm Delete',
+      'Event will be deleted',
+      [
+        {
+          text: 'Cancel',
+        },
+        {
+          text: 'Ok',
+          onPress: async () => {
+            try {
+              // Delete the event from Firebase database
+              await deleteDocument("events", eventId);
+
+              // Update local state by removing the event from the list
+              const updatedEvents = upcomingEvents.filter(event => event.id !== eventId);
+              setEvents(updatedEvents);
+
+              // Update calendar markers to remove the event's date
+              updateMarkedDates(updatedEvents);
+            } catch (error) {
+              // Handle any errors during deletion process
+              console.error("Error deleting event: ", error);
+              Alert.alert('Error', 'Failed to delete event');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderRightActions = (event) => (
@@ -137,22 +221,25 @@ export function Events({ navigation }) {
     </View>
   );
 
-  const eventCard = ({ item }) => (
-    <Swipeable renderRightActions={() => renderRightActions(item)}>
-      <TouchableOpacity onPress={() => openModal(item)}>
-        <View style={[styles.card, { borderLeftColor: EVENT_CATEGORIES[item.category].color, borderLeftWidth: 5 }]}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <View style={[styles.categoryTag, { backgroundColor: EVENT_CATEGORIES[item.category].color }]}>
-              <Text style={styles.categoryText}>{EVENT_CATEGORIES[item.category].label}</Text>
+  const eventCard = ({ item }) => {
+    return (
+      <Swipeable renderRightActions={() => renderRightActions(item)}>
+        <TouchableOpacity onPress={() => openModal(item)}>
+          <View style={[styles.card, { borderLeftColor: EVENT_CATEGORIES[item.category].color, borderLeftWidth: 5 }]}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              <View style={[styles.categoryTag, { backgroundColor: EVENT_CATEGORIES[item.category].color }]}>
+                <Text style={styles.categoryText}>{EVENT_CATEGORIES[item.category].label}</Text>
+              </View>
             </View>
+            <Text style={styles.cardDate}>{item.date}</Text>
+            <Text style={styles.cardDate}>Created by: {isLoading ? 'Loading...' : item.creatorName}</Text>
+            {item.reminder && <Text style={styles.reminderText}>🔔 Reminder Set</Text>}
           </View>
-          <Text style={styles.cardDate}>{item.date}</Text>
-          {item.reminder && <Text style={styles.reminderText}>🔔 Reminder Set</Text>}
-        </View>
-      </TouchableOpacity>
-    </Swipeable>
-  );
+        </TouchableOpacity>
+      </Swipeable>
+    );
+  };
 
   const openModal = (event) => {
     setSelectedEvent(event);
@@ -269,19 +356,19 @@ export function Events({ navigation }) {
                   <View style={styles.modalHeader}>
                     <View style={[styles.categoryIndicator, { backgroundColor: EVENT_CATEGORIES[selectedEvent?.category]?.color }]} />
                     <Text style={styles.modalTitle}>{selectedEvent?.title}</Text>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={styles.closeModalButton}
                       onPress={() => setModalVisible(false)}>
                       <Feather name="x" size={24} color="#666" />
                     </TouchableOpacity>
                   </View>
-                  
+
                   <View style={styles.modalBody}>
                     <View style={styles.modalInfoRow}>
                       <Feather name="calendar" size={20} color={primaryColor} />
                       <Text style={styles.modalDate}>{selectedEvent?.date}</Text>
                     </View>
-                    
+
                     <View style={styles.modalInfoRow}>
                       <Feather name="tag" size={20} color={primaryColor} />
                       <View style={[styles.modalCategoryTag, { backgroundColor: EVENT_CATEGORIES[selectedEvent?.category]?.color }]}>
@@ -304,7 +391,7 @@ export function Events({ navigation }) {
                     </View>
                   </View>
 
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.modalCloseButton}
                     onPress={() => setModalVisible(false)}>
                     <Text style={styles.modalCloseButtonText}>Close</Text>
@@ -330,7 +417,7 @@ export function Events({ navigation }) {
                   <View style={styles.modalHeader}>
                     <View style={[styles.categoryIndicator, { backgroundColor: EVENT_CATEGORIES[newEvent.category]?.color }]} />
                     <Text style={styles.modalTitle}>Add New Event</Text>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={styles.closeModalButton}
                       onPress={() => setShowAddModal(false)}>
                       <Feather name="x" size={24} color="#666" />
@@ -405,12 +492,12 @@ export function Events({ navigation }) {
                   </View>
 
                   <View style={styles.modalFooter}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={[styles.modalButton, styles.modalButtonSecondary]}
                       onPress={() => setShowAddModal(false)}>
                       <Text style={styles.modalButtonTextSecondary}>Cancel</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={[styles.modalButton, styles.modalButtonPrimary]}
                       onPress={handleAddEvent}>
                       <Text style={styles.modalButtonTextPrimary}>Create Event</Text>
