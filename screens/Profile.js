@@ -11,10 +11,13 @@
 
 
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet, TextInput, ScrollView } from "react-native";
+import { View, Text, Image, StatusBar, StyleSheet, TextInput, ScrollView } from "react-native";
 import { LoginButton } from "../components/Buttons.js";
 import { auth } from '../firebaseConfig.js';
 import { Checkbox } from 'expo-checkbox';
+import { doc } from 'firebase/firestore';
+import { fetchDocumentByID } from '../Functions.js';
+import { db } from '../firebaseConfig.js';
 
 const profileImage = require("../assets/profileUser.png");
 const buildingIcon = require(".././assets/buildingIcon.png");
@@ -30,11 +33,31 @@ const ProfileCard = ({ icon, text }) => {
   )
 }
 
+
+
 export function Profile({ navigation }) {
-  // State hooks
-  const [userFullName, setFirstName] = useState("Yafet Tekleab");
   const [email, setEmail] = useState(auth.currentUser?.email || "user@example.com");
   const [isNotificationsChecked, setIsNotificationsChecked] = useState(false);
+  const [fullName, setFullName] = useState("Full Name");
+  const [profilePicture, setProfilePicture] = useState("");  
+  const currentUser = auth.currentUser;
+
+  if (currentUser) {
+    const userId = currentUser.uid;
+    const table = "users";
+    // Reference to the users collection in Firestore
+    const userDocRef = doc(db, table, userId);
+  
+    fetchDocumentByID(userDocRef)
+      .then((data) => {
+        setFullName(data.firstName + " " + data.lastName);
+        setProfilePicture(data.profilePicture);
+        console.log(data.profilePicture);
+      })
+      .catch((error) => {
+        console.error('Error loading user data:', error);
+      });
+  }
 
 
   return (
@@ -44,10 +67,12 @@ export function Profile({ navigation }) {
       <Text style={styles.textHeader}>Account Settings</Text>
 
       {/* profile Image */}
-      <Image source={profileImage} style={styles.profileImage} />
-
+      <Image
+        source={require('../assets/person2.jpg')}
+        style={styles.profileImage}
+      />
       {/* User Name */}
-      <Text style={styles.name}>{userFullName}</Text>
+      <Text style={styles.name}>{fullName}</Text>
 
 
       {/* Email Input */}
@@ -115,7 +140,7 @@ const styles = StyleSheet.create({
     borderColor: '#1560BD',
     alignSelf: 'center',
     marginBottom: 20,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
   name: {
     fontSize: 22,

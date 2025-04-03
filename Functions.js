@@ -10,7 +10,7 @@
 */
 
 import { db } from './firebaseConfig';
-import { collection, addDoc, setDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDoc, setDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 
 // Create Apartments table
 // export const createApartment = async (apartment) => {
@@ -74,6 +74,25 @@ export const fetchDocuments = async (collectionName) => {
   } catch (error) {
     console.error("Error fetching documents:", error);
     throw error;
+  }
+};
+
+// Fetch data by ID
+export const fetchDocumentByID = async (docRef) => {
+  try {
+    if (!docRef) {
+      throw new Error('Document reference is required');
+    }
+    
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error('Document not found');
+    }
+    
+    return docSnap.data();
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    throw error; // Re-throw the error so callers can handle it
   }
 };
 

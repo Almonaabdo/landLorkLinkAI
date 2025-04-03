@@ -10,7 +10,7 @@
 */
 
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StatusBar, ActivityIndicator, TextInput, KeyboardAvoidingView, ScrollView, StyleSheet } from "react-native";
+import { Text, Image, TouchableOpacity, StatusBar, ActivityIndicator, TextInput, KeyboardAvoidingView, ScrollView, StyleSheet, Platform } from "react-native";
 import { auth, db } from '../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -18,6 +18,7 @@ import { LoginButton } from "../components/Buttons";
 
 // Logo
 const logoImg = require(".././assets/Accommod8u.jpg");
+const defaultProfilePicture = require(".././assets/person2.jpg");
 
 // global variables
 const emailInUseError = -3;
@@ -59,7 +60,8 @@ export function SignUpScreen({ navigation }) {
         lastLogin: new Date(),
         role: 'tenant', // Default role
         status: 'active',
-        uid: user.uid
+        uid: user.uid,
+        profilePicture: defaultProfilePicture
       };
 
       // Store user data in Firestore using the auth UID as document ID
@@ -84,8 +86,17 @@ export function SignUpScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <KeyboardAvoidingView behavior="position">
+    <KeyboardAvoidingView 
+      behavior="padding"
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      style={{ flex: 1 }}>
+
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={{ paddingBottom: 50 }}
+        //showsVerticalScrollIndicator={false}
+        >
+
         <StatusBar barStyle="light-content" />
 
         {/*COMPANY LOGO */}
@@ -103,6 +114,7 @@ export function SignUpScreen({ navigation }) {
         <TextInput
           style={styles.textInput}
           placeholder="Enter First Name"
+          placeholderTextColor={"black"}
           onChangeText={(text) => { setFirstName(text); setViewError(0); }}
           value={firstName}
           editable={!isLoading}
@@ -112,6 +124,7 @@ export function SignUpScreen({ navigation }) {
         <TextInput
           style={styles.textInput}
           placeholder="Enter Last Name"
+          placeholderTextColor={"black"}
           onChangeText={(text) => { setLastName(text); setViewError(0); }}
           value={lastName}
           editable={!isLoading}
@@ -180,8 +193,8 @@ export function SignUpScreen({ navigation }) {
           <Text style={styles.signInText}>Already A Member?</Text>
         </TouchableOpacity>
 
-      </KeyboardAvoidingView>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 
   // front end function to validate input values
