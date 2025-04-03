@@ -86,16 +86,16 @@ export function SignUpScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior="padding"
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       style={{ flex: 1 }}>
 
-      <ScrollView 
+      <ScrollView
         style={styles.container}
         contentContainerStyle={{ paddingBottom: 50 }}
-        //showsVerticalScrollIndicator={false}
-        >
+      //showsVerticalScrollIndicator={false}
+      >
 
         <StatusBar barStyle="light-content" />
 

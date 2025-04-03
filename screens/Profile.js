@@ -9,21 +9,76 @@
 * 
 */
 
-
+// Import necessary React and React Native components for UI elements and functionality
 import React, { useState } from "react";
-import { View, Text, Image, StatusBar, StyleSheet, TextInput, ScrollView } from "react-native";
+import { View, Text, Image, StatusBar, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { LoginButton } from "../components/Buttons.js";
 import { auth } from '../firebaseConfig.js';
 import { Checkbox } from 'expo-checkbox';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { fetchDocumentByID } from '../Functions.js';
 import { db } from '../firebaseConfig.js';
+import { updateEmail, updatePassword } from 'firebase/auth';
 
+// Import required assets for icons and images
 const profileImage = require("../assets/profileUser.png");
 const buildingIcon = require(".././assets/buildingIcon.png");
 const phoneIcon = require(".././assets/phoneIcon.png");
+const editIcon = require("../assets/penIcon.png");
 
+/**
+ * SectionContainer Component
+ * Creates a consistent container for different sections of the profile
+ * @param {string} title - The title of the section
+ * @param {ReactNode} children - The content to be displayed in the section
+ */
+const SectionContainer = ({ title, children }) => {
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.sectionContent}>
+        {children}
+      </View>
+    </View>
+  );
+};
 
+/**
+ * EditableField Component
+ * Creates a field that can be edited with an edit button
+ * @param {string} label - The label for the field
+ * @param {string} value - The current value of the field
+ * @param {boolean} isEditing - Whether the field is in edit mode
+ * @param {function} onEdit - Function to handle edit button press
+ * @param {function} onChangeText - Function to handle text changes
+ * @param {boolean} secureTextEntry - Whether to hide the text (for passwords)
+ */
+const EditableField = ({ label, value, isEditing, onEdit, onChangeText, secureTextEntry }) => {
+  return (
+    <View style={styles.editableField}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={[styles.input, !isEditing && styles.inputDisabled]}
+          value={value}
+          editable={isEditing}
+          onChangeText={onChangeText}
+          secureTextEntry={secureTextEntry}
+        />
+        <TouchableOpacity onPress={onEdit} style={styles.editButton}>
+          <Image source={editIcon} style={styles.editIcon} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+/**
+ * ProfileCard Component
+ * Displays contact information with an icon
+ * @param {ImageSource} icon - The icon to display
+ * @param {string} text - The text to display next to the icon
+ */
 const ProfileCard = ({ icon, text }) => {
   return (
     <View style={styles.profileCard}>
@@ -33,26 +88,35 @@ const ProfileCard = ({ icon, text }) => {
   )
 }
 
-
-
+/**
+ * Profile Component
+ * Main profile screen component that displays and manages user information
+ * @param {Object} navigation - Navigation object for screen navigation
+ */
 export function Profile({ navigation }) {
+  // State management for user information and UI states
   const [email, setEmail] = useState(auth.currentUser?.email || "user@example.com");
   const [isNotificationsChecked, setIsNotificationsChecked] = useState(false);
   const [fullName, setFullName] = useState("Full Name");
-  const [profilePicture, setProfilePicture] = useState("");  
+  const [profilePicture, setProfilePicture] = useState("");
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const currentUser = auth.currentUser;
 
+  // Fetch user data from Firestore when component mounts
   if (currentUser) {
     const userId = currentUser.uid;
     const table = "users";
-    // Reference to the users collection in Firestore
     const userDocRef = doc(db, table, userId);
-  
+
+    // Load user data and update state
     fetchDocumentByID(userDocRef)
       .then((data) => {
         setFullName(data.firstName + " " + data.lastName);
         setProfilePicture(data.profilePicture);
-        console.log(data.profilePicture);
+        setIsNotificationsChecked(data.notifications || false);
       })
       .catch((error) => {
         console.error('Error loading user data:', error);
@@ -60,66 +124,94 @@ export function Profile({ navigation }) {
   }
 
 
+
+
+
+  /**
+   * Handles the notification preference toggle
+   */
+  const handleNotificationToggle = async () => {
+    //TODO: Implement notification toggle functionality
+  };
+
+  // Render the profile screen
   return (
     <ScrollView style={styles.container}>
       <StatusBar barStyle="light-content" />
 
+      {/* Main header */}
       <Text style={styles.textHeader}>Account Settings</Text>
 
-      {/* profile Image */}
-      <Image
-        source={require('../assets/person2.jpg')}
-        style={styles.profileImage}
-      />
-      {/* User Name */}
-      <Text style={styles.name}>{fullName}</Text>
+      {/* Profile section with picture and name */}
+      <SectionContainer title="Profile">
+        <Image
+          source={require('../assets/person2.jpg')}
+          style={styles.profileImage}
+        />
+        <Text style={styles.name}>{fullName}</Text>
+      </SectionContainer>
 
+      {/* Personal information section with editable email and password */}
+      <SectionContainer title="Personal Information">
+        <EditableField
+          label="Email"
+          value={isEditingEmail ? newEmail : email}
+          isEditing={isEditingEmail}
+          onEdit={() => {
+            //TODO: Implement email update functionality
+          }}
+          onChangeText={setNewEmail}
+        />
 
-      {/* Email Input */}
-      <Text style={styles.inputLabel}>Email</Text>
-      <TextInput
-        style={styles.input}
-        value={email}
-        editable={false} />
+        <View style={{ margin: '3%' }} />
 
-      <View style={{ margin: '3%' }} />
+        <EditableField
+          label="Password"
+          value={isEditingPassword ? newPassword : "*********"}
+          isEditing={isEditingPassword}
+          onEdit={() => {
+            // TODO: Implement password update functionality
+          }}
+          onChangeText={setNewPassword}
+          secureTextEntry={true}
+        />
+      </SectionContainer>
 
-      {/* Password Input */}
-      <Text style={styles.inputLabel}>Password</Text>
-      <TextInput
-        style={styles.input}
-        value="*********"
-        editable={false} />
+      {/* Settings section with notification toggle */}
+      <SectionContainer title="Settings">
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Notifications</Text>
+          <Checkbox
+            value={isNotificationsChecked}
+            onValueChange={handleNotificationToggle}
+            color={"purple"}
+          />
+        </View>
+      </SectionContainer>
 
+      {/* Contact information section */}
+      <SectionContainer title="Contact Information">
+        <ProfileCard icon={buildingIcon} text={"13C9"} />
+        <ProfileCard icon={phoneIcon} text={"226-898-4470"} />
+      </SectionContainer>
 
-      {/* Notifications Checkbox */}
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginVertical: "5%" }}>
-        <Text style={{ fontSize: 18 }}>Notifications</Text>
-        <Checkbox value={isNotificationsChecked} onValueChange={setIsNotificationsChecked} color={"purple"} />
+      {/* Sign out section */}
+      <View style={styles.signOutSection}>
+        <LoginButton text="Sign Out" onPress={() => navigation.navigate("SignOut")} />
       </View>
-
-      <ProfileCard icon={buildingIcon} text={"13C9"} />
-
-      <ProfileCard icon={phoneIcon} text={"226-898-4470"} />
-
-
-      {/* SPACING */}
-      <View style={{ margin: '10%' }} />
-
-      {/* Logout BUTTON */}
-      <LoginButton text="Sign Out" onPress={() => navigation.navigate("SignOut")} />
     </ScrollView>
   );
 }
 
-
-// Styles
+// Styles for the profile screen
 const styles = StyleSheet.create({
+  // Container styles
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: "#f9f9f9",
   },
+  // Header text styles
   textHeader: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -127,11 +219,50 @@ const styles = StyleSheet.create({
     marginBottom: '3%',
     alignSelf: 'center',
   },
-  ProfileImage:{
+  // Section container styles with shadow and elevation
+  sectionContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  // Section title styles
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+  },
+  // Section content styles
+  sectionContent: {
+    paddingTop: 8,
+  },
+  // Setting row styles for notification toggle
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  // Setting label styles
+  settingLabel: {
+    fontSize: 16,
+    color: '#333',
+  },
+  // Profile image styles
+  ProfileImage: {
     width: 30,
     height: 30,
-    margin:10,
-},
+    margin: 10,
+  },
   profileImage: {
     width: 100,
     height: 100,
@@ -142,6 +273,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     resizeMode: 'cover',
   },
+  // Name text styles
   name: {
     fontSize: 22,
     fontWeight: '600',
@@ -149,16 +281,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
+  // Input label styles
   inputLabel: {
     fontSize: 16,
     color: '#666',
     marginBottom: 5,
   },
-  icon:{
+  // Icon styles
+  icon: {
     width: 30,
     height: 30,
-    margin:10,
+    margin: 10,
   },
+  // Input field styles
   input: {
     height: 40,
     borderColor: '#ddd',
@@ -168,18 +303,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     fontSize: 16,
     color: '#333',
+    flex: 1,
   },
-  spacer: {
-    height: 60,
+  // Disabled input styles
+  inputDisabled: {
+    backgroundColor: '#f5f5f5',
   },
-
+  // Input container styles
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  // Edit button styles with background and border radius
+  editButton: {
+    padding: 8,
+    marginLeft: 8,
+    backgroundColor: '#f3ebf5',
+    borderRadius: 8,
+  },
+  // Edit icon styles with tint color
+  editIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#3e1952',
+  },
+  // Profile card styles
   profileCard: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginVertical: "3%",
-    backgroundColor:"#f3ebf5",
-    padding:5,
-    borderRadius:10,
+    backgroundColor: "#f3ebf5",
+    padding: 12,
+    borderRadius: 10,
+  },
+  // Sign out section styles
+  signOutSection: {
+    marginTop: 24,
+    marginBottom: 32,
   },
 });
