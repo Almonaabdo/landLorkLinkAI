@@ -15,6 +15,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Feather from '@expo/vector-icons/Feather';
 
 // Screens
 import { Profile } from './screens/Profile';
@@ -49,12 +50,12 @@ const defaultScreenOptions =
 };
 
 // Custom tab bar icon component
-const TabIcon = ({ icon, label, focused }) =>
+const TabIcon = ({ name, label, focused }) =>
   {
   const iconSize = focused ? 30 : 24;
   return (
     <View style={{ alignItems: 'center'}}>
-        <Image source={icon} style={{ width: iconSize, height: iconSize }} />
+        <Feather name={name} size={24} color="black" />
       <Text style={{ fontSize: 10, color: focused ? primaryColor : 'black', fontWeight:"700" }}>{label}</Text>
     </View>
   );
@@ -66,27 +67,27 @@ const TabNavigator = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
       tabBarIcon: ({ focused }) => {
-        let icon;
+        let name;
         switch (route.name) {
           case 'Home':
-            icon = HomeIcon;
+            name = 'home';
             break;
           case 'Documents':
-            icon = DocumentsIcon;
+            name = 'file';
             break;
             case 'Events':
-              icon = EventsIcon;
+              name = 'calendar';
               break;
           case 'Contact':
-            icon = ContactIcon;
+            name = 'mail';
             break;
           case 'Profile':
-            icon = ProfileIcon;
+            name = 'user';
             break;
           default:
-            icon = HomeIcon;
+            name = 'home';
         }
-        return <TabIcon icon={icon} label={route.name} focused={focused} />;
+        return <TabIcon name={name} label={route.name} focused={focused} />;
       },
       tabBarShowLabel: false,
       //tabBarActiveTintColor: primaryColor, (styling keep here for later)

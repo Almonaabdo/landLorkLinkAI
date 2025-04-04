@@ -15,7 +15,7 @@ import { auth, db } from '../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { LoginButton } from "../components/Buttons";
-
+import Feather from '@expo/vector-icons/Feather';
 // Logo
 const logoImg = require(".././assets/Accommod8u.jpg");
 const defaultProfilePicture = require(".././assets/person2.jpg");
@@ -169,6 +169,7 @@ export function SignUpScreen({ navigation }) {
           text={isLoading ? "Creating Account..." : "Sign Up"}
           onPress={handleSignUp}
           disabled={isLoading}
+          component={<Feather name="user-plus" size={24} color="white" />}
         />
 
         {/* Error Messages */}
@@ -187,6 +188,7 @@ export function SignUpScreen({ navigation }) {
 
         {/* Already a Member? */}
         <TouchableOpacity
+          style={{ marginTop: '5%' }}
           onPress={() => navigation.replace("Login")}
           disabled={isLoading}
         >

@@ -17,7 +17,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { auth } from '../firebaseConfig'; 
 import { signOut } from 'firebase/auth';
 import { CommonActions } from '@react-navigation/native';
-
+import Feather from '@expo/vector-icons/Feather';
 export function SignOutScreen({ navigation }) {
   // Function to handle sign out
   const handleSignOut = async () => 
@@ -51,7 +51,7 @@ export function SignOutScreen({ navigation }) {
       <Text>Are you sure you want to sign out?</Text>
 
       {/* Logout button */}
-      <LoginButton onPress={handleSignOut} text="Sign Out" />
+      <LoginButton onPress={handleSignOut} text="Sign Out" component={<Feather name="log-out" size={24} color="white"/>} color="#c31d1d"/>
 
       {/* Cancel button */}
       <TouchableOpacity onPress={() => navigation.goBack()}>

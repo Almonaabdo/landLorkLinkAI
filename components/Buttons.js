@@ -3,13 +3,12 @@ import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 
 
 const primaryColor = "#60099c"
-
-
-export function LoginButton({ text, onPress }) {
+export function LoginButton({ text, onPress, style, component, color }) {
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={styles.LoginButton}>
+    <TouchableOpacity onPress={onPress} style={style}>
+      <View style={[styles.LoginButton, { backgroundColor: color ? color : primaryColor }]}>
         <Text style={[styles.ButtonText]}>{text}</Text>
+        {component}
       </View>
     </TouchableOpacity>
   )
@@ -24,7 +23,10 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: primaryColor,
     width: '50%',
-    alignSelf: 'center'
+    alignSelf: 'center', // horizontal center
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center' // vertical center
   },
 
 

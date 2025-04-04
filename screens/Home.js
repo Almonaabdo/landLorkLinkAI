@@ -20,7 +20,7 @@ import { LoginButton } from "../components/Buttons.js";
 import AnnouncementsList from "../components/AnnouncementsList.js";
 import { LinearGradient } from 'expo-linear-gradient';
 import MiniCard from "../components/MiniCard.js";
-
+import Feather from '@expo/vector-icons/Feather';
 // Icons
 const darkBlue = "#2e395d";
 const icons = {
@@ -293,76 +293,147 @@ export function HomeScreen({ navigation }) {
         animationType="slide"
         presentationStyle="pageSheet">
 
-        <View style={{ padding: "4%", gap: "1.5%" }}>
+        <View style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 15 }}>
+            <View style={{ width: 4, height: 24, backgroundColor: '#3e1952', borderRadius: 2, marginRight: 15 }} />
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#333', flex: 1 }}>Request Maintenance</Text>
+            <TouchableOpacity onPress={() => setIsMaintenanceModalVisible(false)}>
+              <Feather name="x" size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
 
-          {/*Down Arrow Icon*/}
-          {/* <TouchableOpacity onPress={() => setIsMaintenanceModalVisible(false)}>
-            <Image source={icons.ArrowDownIcon} style={{ width: 35, height: 35, marginVertical: '2%', alignSelf: "center" }} />
-          </TouchableOpacity> */}
+          <ScrollView>
 
-          <Text style={{ fontSize: 20, fontWeight: 'bold', textAlign: 'center' }}>Request Maintenance</Text>
+            {/* Issue Title */}
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Feather name="edit-3" size={20} color="#2D3748" />
+                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Issue Title</Text>
+              </View>
+              <TextInput
+                placeholder="Enter issue title"
+                placeholderTextColor="grey"
+                style={{
+                  borderColor: '#e0e0e0',
+                  borderWidth: 1,
+                  borderRadius: 8,
+                  padding: 12,
+                  backgroundColor: "#f8f8f8",
+                  fontSize: 16
+                }}
+                onChangeText={setIssueTitle}
+                value={issueTitle}/>
+            </View>
 
-          {/* Issue Title */}
-          <Text>Issue Title</Text>
-          <TextInput
-            placeholder="Issue Title"
-            placeholderTextColor="grey"
-            style={{
-              borderColor: '#ccc',
-              borderWidth: 1,
-              borderRadius: 8,
-              padding: 12,
-              backgroundColor: "#f9f9f9"
-            }}
-            onChangeText={setIssueTitle}
-            value={issueTitle}
-          />
-          {/* Issue Description */}
-          <Text>Describe the problem</Text>
-          <TextInput
-            placeholder="Issue Description"
-            multiline
-            numberOfLines={4}
-            placeholderTextColor="grey"
-            style={{
-              height: 120,
-              borderWidth: 1,
-              borderColor: '#ccc',
-              padding: 10,
-              borderRadius: 10,
-              fontSize: 16,
-              textAlignVertical: 'top',
-            }}
-            onChangeText={setIssueDescription}
-            value={issueDescription}
-          />
+            {/* Issue Description */}
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Feather name="align-left" size={20} color="#4A5568" />
+                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Issue Description</Text>
+              </View>
+              <TextInput
+                placeholder="Describe the problem"
+                multiline
+                numberOfLines={4}
+                placeholderTextColor="grey"
+                style={{
+                  height: 120,
+                  borderWidth: 1,
+                  borderColor: '#e0e0e0',
+                  padding: 12,
+                  borderRadius: 8,
+                  fontSize: 16,
+                  textAlignVertical: 'top',
+                  backgroundColor: "#f8f8f8"
+                }}
+                onChangeText={setIssueDescription}
+                value={issueDescription}
+              />
+            </View>
 
-          {/* Issue Type Dropdown */}
-          <Text>Maintenance Type</Text>
-          <SelectList
-            setSelected={setSelected}
-            data={maintainenceList}
-            placeholder="Select Issue Type"
-            searchPlaceholder="Search"
-            dropdownStyles={{ borderRadius: 5 }}
-            boxStyles={{ borderRadius: 8 }}
-          />
+            {/* Maintenance Type */}
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Feather name="tag" size={20} color="#805AD5" />
+                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Maintenance Type</Text>
+              </View>
+              <SelectList
+                setSelected={setSelected}
+                data={maintainenceList}
+                placeholder="Select Issue Type"
+                searchPlaceholder="Search"
+                dropdownStyles={{ borderRadius: 8, borderColor: '#e0e0e0' }}
+                boxStyles={{ borderRadius: 8, borderColor: '#e0e0e0', backgroundColor: "#f8f8f8" }}
+                save="value"
+              />
+            </View>
 
-          {/* Priority Dropdown */}
-          <Text>How Urgent</Text>
-          <SelectList
-            setSelected={setSelectedPriority}
-            data={priorityLevels}
-            placeholder="Select Priority"
-            searchPlaceholder="Search"
-            dropdownStyles={{ borderRadius: 5 }}
-            boxStyles={{ borderRadius: 8 }}
-          />
+            {/* Priority Level */}
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Feather name="alert-circle" size={20} color="#E53E3E" />
+                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Priority Level</Text>
+              </View>
+              <SelectList
+                setSelected={setSelectedPriority}
+                data={priorityLevels}
+                placeholder="Select Priority"
+                searchPlaceholder="Search"
+                dropdownStyles={{ borderRadius: 8, borderColor: '#e0e0e0' }}
+                boxStyles={{ borderRadius: 8, borderColor: '#e0e0e0', backgroundColor: "#f8f8f8" }}
+                save="value"
+              />
+            </View>
 
-          {/* Add Image Button */}
-          <TouchableOpacity onPress={() => setImagePickerModalVisible(true)} style={{ alignItems: 'center' }}>
-            <Image source={icons.AddImagesLogo} style={{ width: 100, height: 100 }} />
-          </TouchableOpacity>
+            {/* Add Image */}
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Feather name="image" size={20} color="#3182CE" />
+                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Add Image</Text>
+              </View>
+              <TouchableOpacity 
+                onPress={() => setImagePickerModalVisible(true)} 
+                style={{ 
+                  height: 100, 
+                  borderWidth: 1, 
+                  borderColor: '#e0e0e0', 
+                  borderRadius: 8, 
+                  backgroundColor: "#f8f8f8",
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                {image ? (
+                  <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
+                ) : (
+                  <Feather name="plus" size={40} color="#3e1952" />
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* Submit and Cancel Buttons */}
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 20, gap: 12 }}>
+              <TouchableOpacity
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  borderRadius: 8,
+                  backgroundColor: '#f0f0f0',
+                }}
+                onPress={() => setIsMaintenanceModalVisible(false)}>
+                <Text style={{ color: '#666', fontSize: 16, fontWeight: '600' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  borderRadius: 8,
+                  backgroundColor: '#3e1952',
+                }}
+                onPress={handleRepairRequestSubmit}>
+                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Submit</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
 
           {/* IMAGE UPLOAD MODAL */}
           <Modal
@@ -372,52 +443,55 @@ export function HomeScreen({ navigation }) {
             onDismiss={() => setImagePickerModalVisible(false)}
             onRequestClose={() => setImagePickerModalVisible(false)}>
 
-            {/* Centering the modal content */}
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              {/*White background */}
-
               <View style={{ width: '70%', backgroundColor: 'white', borderRadius: 10, padding: 20 }}>
 
-                <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-around" }}>
-                  {/* Camera Logo */}
-                  <TouchableOpacity onPress={() => uploadImage("Camera")}>
-                    <Image source={icons.CameraLogo} style={{ width: 50, height: 50, borderRadius: 15 }} />
+                {/* Image Upload Buttons */}
+                <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 20 }}>
+                  <TouchableOpacity 
+                    onPress={() => uploadImage("Camera")}
+                    style={{ alignItems: 'center' }}>
+                    <Feather name="camera" size={40} color="#3182CE" />
+                    <Text style={{ marginTop: 8, color: '#333' }}>Camera</Text>
                   </TouchableOpacity>
 
-                  {/* Gallery Logo */}
-                  <TouchableOpacity onPress={() => uploadImage("Gallery")}>
-                    <Image source={icons.GalleryLogo} style={{ width: 50, height: 50, borderRadius: 15 }} />
+                  <TouchableOpacity 
+                    onPress={() => uploadImage("Gallery")}
+                    style={{ alignItems: 'center' }}>
+                    <Feather name="image" size={40} color="#3182CE" />
+                    <Text style={{ marginTop: 8, color: '#333' }}>Gallery</Text>
                   </TouchableOpacity>
                 </View>
 
-                {/* Close button */}
-                <TouchableOpacity onPress={() => setImagePickerModalVisible(false)} style={{ marginTop: 20 }}>
-                  <Text style={{ color: 'red', alignSelf: "center" }}>Close</Text>
+                {/* Close Button */}
+                <TouchableOpacity 
+                  onPress={() => setImagePickerModalVisible(false)} 
+                  style={{ 
+                    padding: 10, 
+                    alignItems: 'center',
+                    borderTopWidth: 1,
+                    borderTopColor: '#f0f0f0'
+                  }}>
+                  <Text style={{ color: '#666' }}>Close</Text>
                 </TouchableOpacity>
               </View>
-
             </View>
           </Modal>
-
-
-          {/* Submit request Button */}
-          <LoginButton text="Submit" onPress={handleRepairRequestSubmit} />
-
         </View>
       </Modal>
 
       {/* NFC Scanner Modal */}
       <Modal
         visible={isNfcModalVisible}
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         onRequestClose={() => setIsNfcModalVisible(false)}>
         <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#2c2c2c" }}>
 
 
           {/*Down Arrow Icon*/}
-          <TouchableOpacity onPress={() => setIsNfcModalVisible(false)} style={{ marginTop: 20 }}>
-            <Image source={icons.ArrowDownIcon} style={{ width: 35, height: 35, marginTop: '20%' }} />
+          <TouchableOpacity onPress={() => setIsNfcModalVisible(false)} style={{ marginTop: "25%" }}>
+            <Feather name="arrow-down" size={64} color="white" />
           </TouchableOpacity>
 
 
@@ -443,11 +517,7 @@ export function HomeScreen({ navigation }) {
         presentationStyle="pageSheet">
         <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#FFFFF", padding: "4%" }}>
 
-          {/*Down Arrow Icon*/}
-          {/* <TouchableOpacity onPress={() => setIsEmergencyModalVisible(false)}>
-            <Image source={icons.ArrowDownIcon} style={{ width: 35, height: 35, marginBottom: '10%', alignSelf: "center" }} />
-          </TouchableOpacity> */}
-
+          {/* Fire Safety Guide Title */}
           <View style={{ backgroundColor: "red", padding: 10, borderRadius: 7 }}>
             <Text style={{ fontSize: 34 }}>Fire Safety Guide</Text>
           </View>
@@ -470,7 +540,9 @@ export function HomeScreen({ navigation }) {
             description="Open the window and signal for help after calling 911." />
 
           <View style={{ marginVertical: "20%" }} />
-          <LoginButton text={"CALL 9 1 1 "} onPress={() => Linking.openURL(`tel:911`)}/>
+
+          {/* CALL 9 1 1 BUTTON */}
+          <LoginButton text={"CALL 9 1 1 "} onPress={() => Linking.openURL(`tel:911`)} component={<Feather name="phone" size={24} color="white" />} />
 
         </View>
       </Modal>

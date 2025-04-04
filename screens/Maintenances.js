@@ -27,7 +27,7 @@ const priorityOrder =
 
 // Sort according to priority from highest to lowest
 const sortRequestsByPriority = (requests) => {
-  return requests.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+  return requests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 };
 
 export function Maintenances({ navigation }) {
@@ -72,7 +72,7 @@ export function Maintenances({ navigation }) {
     return <Text>Error fetching requests: {error}</Text>;
   }
   return (
-    <ScrollView style={{ flex: 1, padding: 20, backgroundColor: "#f9f9f9" }}>
+    <ScrollView style={{ flex: 1, padding: 12, }}>
 
       {/*Loop thru all requests and displays them in cards */}
       {requests.map((request, index) => 

@@ -19,6 +19,8 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { fetchDocumentByID } from '../Functions.js';
 import { db } from '../firebaseConfig.js';
 import { updateEmail, updatePassword } from 'firebase/auth';
+import Feather from '@expo/vector-icons/Feather';
+
 
 // Import required assets for icons and images
 const profileImage = require("../assets/profileUser.png");
@@ -66,7 +68,7 @@ const EditableField = ({ label, value, isEditing, onEdit, onChangeText, secureTe
           secureTextEntry={secureTextEntry}
         />
         <TouchableOpacity onPress={onEdit} style={styles.editButton}>
-          <Image source={editIcon} style={styles.editIcon} />
+          <Feather name="edit" size={24} color="#3e1952" />
         </TouchableOpacity>
       </View>
     </View>
@@ -74,14 +76,14 @@ const EditableField = ({ label, value, isEditing, onEdit, onChangeText, secureTe
 };
 
 /**
- * ProfileCard Component
+ * ContactCard Component
  * Displays contact information with an icon
  * @param {ImageSource} icon - The icon to display
  * @param {string} text - The text to display next to the icon
  */
-const ProfileCard = ({ icon, text }) => {
+const ContactCard = ({ icon, text }) => {
   return (
-    <View style={styles.profileCard}>
+    <View style={styles.contactCard}>
       <Image source={icon} style={styles.icon}></Image>
       <Text style={{ fontSize: 18 }}>{text}</Text>
     </View>
@@ -139,20 +141,14 @@ export function Profile({ navigation }) {
     <ScrollView style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Main header */}
-      <Text style={styles.textHeader}>Account Settings</Text>
-
       {/* Profile section with picture and name */}
-      <SectionContainer title="Profile">
-        <Image
-          source={require('../assets/person2.jpg')}
-          style={styles.profileImage}
-        />
+      <SectionContainer title="">
+        <Image style={styles.profileImage} source={require('../assets/person2.jpg')} />
         <Text style={styles.name}>{fullName}</Text>
       </SectionContainer>
 
       {/* Personal information section with editable email and password */}
-      <SectionContainer title="Personal Information">
+      <SectionContainer title="Information">
         <EditableField
           label="Email"
           value={isEditingEmail ? newEmail : email}
@@ -160,8 +156,7 @@ export function Profile({ navigation }) {
           onEdit={() => {
             //TODO: Implement email update functionality
           }}
-          onChangeText={setNewEmail}
-        />
+          onChangeText={setNewEmail}/>
 
         <View style={{ margin: '3%' }} />
 
@@ -173,31 +168,28 @@ export function Profile({ navigation }) {
             // TODO: Implement password update functionality
           }}
           onChangeText={setNewPassword}
-          secureTextEntry={true}
-        />
+          secureTextEntry={true} />
+
+        <View style={{ margin: '2%' }} />
+
+        <ContactCard icon={buildingIcon} text={"13C9"} />
+        <ContactCard icon={phoneIcon} text={"226-898-4470"} />
+
       </SectionContainer>
 
       {/* Settings section with notification toggle */}
       <SectionContainer title="Settings">
         <View style={styles.settingRow}>
-          <Text style={styles.settingLabel}>Notifications</Text>
+          <Text style={{ fontSize: 16 }}>Notifications</Text>
           <Checkbox
             value={isNotificationsChecked}
-            onValueChange={handleNotificationToggle}
-            color={"purple"}
-          />
+            onValueChange={handleNotificationToggle} />
         </View>
-      </SectionContainer>
-
-      {/* Contact information section */}
-      <SectionContainer title="Contact Information">
-        <ProfileCard icon={buildingIcon} text={"13C9"} />
-        <ProfileCard icon={phoneIcon} text={"226-898-4470"} />
       </SectionContainer>
 
       {/* Sign out section */}
       <View style={styles.signOutSection}>
-        <LoginButton text="Sign Out" onPress={() => navigation.navigate("SignOut")} />
+        <LoginButton style={{ marginBottom: '10%'}} text="Sign Out" onPress={() => navigation.navigate("SignOut")} component={<Feather name="log-out" size={24} color="white" />} />
       </View>
     </ScrollView>
   );
@@ -208,16 +200,8 @@ const styles = StyleSheet.create({
   // Container styles
   container: {
     flex: 1,
-    padding: 20,
+    padding: 15,
     backgroundColor: "#f9f9f9",
-  },
-  // Header text styles
-  textHeader: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '3%',
-    alignSelf: 'center',
   },
   // Section container styles with shadow and elevation
   sectionContainer: {
@@ -250,27 +234,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
-  },
-  // Setting label styles
-  settingLabel: {
-    fontSize: 16,
-    color: '#333',
   },
   // Profile image styles
-  ProfileImage: {
-    width: 30,
-    height: 30,
-    margin: 10,
-  },
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    borderWidth: 2,
+    marginTop: '-15%',
+    borderWidth: 1,
     borderColor: '#1560BD',
     alignSelf: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
     resizeMode: 'cover',
   },
   // Name text styles
@@ -279,7 +253,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     textAlign: 'center',
-    marginBottom: 20,
   },
   // Input label styles
   inputLabel: {
@@ -328,18 +301,13 @@ const styles = StyleSheet.create({
     tintColor: '#3e1952',
   },
   // Profile card styles
-  profileCard: {
+  contactCard: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginVertical: "3%",
     backgroundColor: "#f3ebf5",
-    padding: 12,
+    paddingHorizontal: 10,
     borderRadius: 10,
-  },
-  // Sign out section styles
-  signOutSection: {
-    marginTop: 24,
-    marginBottom: 32,
   },
 });

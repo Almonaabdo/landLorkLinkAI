@@ -14,7 +14,7 @@ import { View, Text, Image, TouchableOpacity, StatusBar, ActivityIndicator, Aler
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { LoginButton } from "../components/Buttons";
-
+import Feather from '@expo/vector-icons/Feather';
 // Logo
 const logoImg = require("../assets/Accommod8u.jpg");
 
@@ -85,7 +85,7 @@ export function LoginScreen({ navigation })
 
 
         {/* LOGIN BUTTON */}
-        <LoginButton text="Login" onPress={() => { if (isFormValid()) { handleSignIn(); } }} />
+        <LoginButton text="Login" onPress={() => { if (isFormValid()) { handleSignIn(); } }} component={<Feather name="log-in" size={24} color="white" />} />
 
 
         {/* Error Message */}
