@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StatusBar, StyleSheet, ActivityIndicator, TouchableOpacity, Image, Modal, Button, TextInput } from 'react-native';
+import { View, Text, StatusBar, StyleSheet, ActivityIndicator, TouchableOpacity, Image, Modal, Button, TextInput, ScrollView } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { LoginButton } from '../components/Buttons';
 import RoomatesListCard from '../components/RoomatesListCard';
 
 const primaryColor = "#3e1952";
+const secondaryColor = "#6a3093";
+const accentColor = "#a044ff";
 
 const budgetIcon = require(".././assets/budgetIcon.png");
 const historyIcon = require(".././assets/historyIcon.png");
@@ -18,337 +20,381 @@ const documentsList = [
 ];
 
 const billsList = [
-  { key: '1', value: 'Hydro Bill', uri: 'https://css4.pub/2015/icelandic/dictionary.pdf', startDate: '2024-01-01', endDate: '2024-01-31' },
-  { key: '2', value: 'Water Bill', uri: 'https://css4.pub/2015/icelandic/dictionary.pdf', startDate: '2024-02-01', endDate: '2024-02-28' },
-  { key: '3', value: 'AC Bill', uri: 'https://css4.pub/2015/icelandic/dictionary.pdf', startDate: '2024-03-01', endDate: '2024-03-31' },
+  { key: '1', value: 'Hydro Bill', uri: 'https://css4.pub/2015/icelandic/dictionary.pdf', startDate: '2024-01-01', endDate: '2024-01-31', amount: '$150.45' },
+  { key: '2', value: 'Water Bill', uri: 'https://css4.pub/2015/icelandic/dictionary.pdf', startDate: '2024-02-01', endDate: '2024-02-28', amount: '$50.12' },
+  { key: '3', value: 'AC Bill', uri: 'https://css4.pub/2015/icelandic/dictionary.pdf', startDate: '2024-03-01', endDate: '2024-03-31', amount: '$100.00' },
+];
+
+const roommates = [
+  { id: '1', name: 'John Doe', paymentStatus: 'paid', amount: '$500', profilePicture: personImage },
+  { id: '2', name: 'Yafet Tekleab', paymentStatus: 'pending', amount: '$500', profilePicture: personImage },
+  { id: '3', name: 'Abdurrahman Almouna', paymentStatus: 'overdue', amount: '$500', profilePicture: personImage },
 ];
 
 export function Documents({ navigation }) {
   const [selectedUri, setSelectedUri] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isDocumentsVisible, setIsDocumentsVisible] = useState(true);
-  const [isBudgetModalVisible, setIsBudgetModalVisible] = useState(false);
   const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [showDocuments, setShowDocuments] = useState(false);
 
-  // Function to toggle the documents open and close based on current state
   const documentToggle = (uri) => {
     if (selectedUri === uri) {
       setSelectedUri("");
-    }
-    else {
+    } else {
       setSelectedUri(uri);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{flex: 1, padding: 15}}>
       <StatusBar barStyle="light-content" />
+      
+      <ScrollView>
 
-      {/* Header Title */}
-      {/* <Text style={styles.header}>Documents & Bills</Text>
-      <Text style={styles.description}>Select a document or bill to view or download. </Text> */}
+        {/* Roommates Section */}
+        <Text style={styles.sectionHeader}>Roommates</Text>
+          {roommates.map(roommate => (
+            <View key={roommate.id} style={styles.roommateCard}>
+              <Image source={roommate.profilePicture} style={styles.profileImage} />
+              <View style={styles.roommateInfo}>
+                <Text style={styles.roommateName}>{roommate.name}</Text>
+                <View style={[
+                  styles.statusBadge,
+                  { backgroundColor: roommate.paymentStatus === 'paid' ? '#4CAF50' : 
+                                    roommate.paymentStatus === 'pending' ? '#FFC107' : '#F44336' }
+                ]}>
+                  <Text style={styles.statusText}>{roommate.paymentStatus.toUpperCase()}</Text>
+                </View>
+              </View>
+              <Text style={styles.amountText}>{roommate.amount}</Text>
+            </View>
+          ))}
 
+        {/* Toggle Buttons */}
+        <View style={styles.toggleContainer}>
 
-      {/* Conditional Rendering DOCUMENTS/BILLS */}
-      {isDocumentsVisible ? (
-        <View>
-          <View style={styles.section}>
+          <TouchableOpacity style={[styles.toggleButton, !showDocuments && styles.activeToggleButton]} onPress={() => setShowDocuments(false)} >
+            <Text style={[styles.toggleText, !showDocuments && styles.activeToggleText]}>Current Bills</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.toggleButton, showDocuments && styles.activeToggleButton]} onPress={() => setShowDocuments(true)}>
+            <Text style={[styles.toggleText, showDocuments && styles.activeToggleText]}>Documents</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Documents or Bills Section */}
+        {showDocuments ? (
+          <View>
             <Text style={styles.sectionHeader}>Documents</Text>
             {documentsList.map(doc => (
-              <Card key={doc.key} title={doc.value} onPress={() => documentToggle(doc.uri)} expiryDate={doc.expiryDate} />
+              <TouchableOpacity key={doc.key} style={styles.billCard} onPress={() => documentToggle(doc.uri)}>
+                <View style={styles.billInfo}>
+                  <Text style={styles.billTitle}>{doc.value}</Text>
+                  <Text style={styles.billPeriod}>Expires: {doc.expiryDate}</Text>
+                </View>
+              </TouchableOpacity>
             ))}
           </View>
-        </View>
-      ) : (
-        <View>
-          <View style={styles.section}>
-
-            <Text style={styles.header}>Roomates</Text>
-            <RoomatesListCard profilePicture={personImage} name="John Doe" paymentStatus="paid" />
-            <RoomatesListCard profilePicture={personImage} name="Yafet Tekleab" paymentStatus="Not paid" />
-            <RoomatesListCard profilePicture={personImage} name="Abdurrahman Almouna" paymentStatus="Not paid" />
-
-            <Text style={styles.sectionHeader}>Bills</Text>
+        ) : (
+          <View>
+            <View style={styles.sectionHeaderContainer}>
+              <Text style={styles.sectionHeader}>Current Bills</Text>
+              <TouchableOpacity onPress={() => setIsPaymentModalVisible(true)}>
+                <Text style={styles.payAllButton}>Pay All</Text>
+              </TouchableOpacity>
+            </View>
             {billsList.map(bill => (
-              <Card key={bill.key} title={bill.value} onPress={() => documentToggle(bill.uri)} expiryDate={"SEP-2024 - OCT-2024"} />
+              <TouchableOpacity key={bill.key} style={styles.billCard} onPress={() => documentToggle(bill.uri)}>
+                <View style={styles.billInfo}>
+                  <Text style={styles.billTitle}>{bill.value}</Text>
+                  <Text style={styles.billPeriod}>{bill.startDate} - {bill.endDate}</Text>
+                </View>
+                <View style={styles.billAmountContainer}>
+                  <Text style={styles.billAmount}>{bill.amount}</Text>
+                  <TouchableOpacity style={styles.payButton} onPress={() => setIsPaymentModalVisible(true)}>
+                    <Text style={styles.payButtonText}>Pay</Text>
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
             ))}
           </View>
-        </View>
-      )}
+        )}
+      </ScrollView>
 
-      {/* WEB VIEW PDF */}
+      {/* PDF Viewer */}
       {selectedUri && (
-        <View style={styles.webViewContainer}>
-          {loading && <ActivityIndicator size="large" color={primaryColor} />}
+        <View style={styles.pdfViewerContainer}>
+          <TouchableOpacity 
+            style={styles.closePdfButton} 
+            onPress={() => setSelectedUri("")}
+          >
+            <Text style={{fontSize: 36, color: 'white'}}>×</Text>
+          </TouchableOpacity>
+          {loading && (
+            <View>
+              <ActivityIndicator size="large" color={primaryColor} />
+            </View>
+          )}
           <WebView
             originWhitelist={['*']}
             source={{ uri: selectedUri }}
-            style={styles.webView}
             onLoadStart={() => setLoading(true)}
             onLoadEnd={() => setLoading(false)}
           />
         </View>
       )}
 
-      {/* View Toggle Buttons */}
-      <View style={{ flexDirection: 'row', marginTop: 20 }}>
-        <ToggleButton text="Documents" onPress={() => setIsDocumentsVisible(true)} style={{ backgroundColor: isDocumentsVisible ? primaryColor : 'gray' }} />
-        <ToggleButton text="Bills" onPress={() => setIsDocumentsVisible(false)} style={{ backgroundColor: !isDocumentsVisible ? primaryColor : 'gray' }} />
-        {!isDocumentsVisible && <ToggleButton text="Pay Bill" onPress={() => setIsPaymentModalVisible(true)} style={{ backgroundColor: "#345635" }} />}
-      </View>
-
-      <View style={{ height: 50, width: 120, alignSelf: "center", marginVertical: "5%" }}>
-      </View>
-
-      {/* History and budget buttons */}
-      <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: "space-evenly" }}>
-
-        <TouchableOpacity onPress={() => { setIsBudgetModalVisible(true) }}>
-          <Image style={styles.icon} source={budgetIcon} />
-        </TouchableOpacity>
-
-        <TouchableOpacity>
-          <Image style={styles.icon} source={historyIcon} />
-        </TouchableOpacity>
-
-      </View>
-
-      {/* Budget Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={isBudgetModalVisible}
-        onRequestClose={() => { setIsBudgetModalVisible(false) }}>
-
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Aug-2024 - Sep-2024</Text>
-
-            <View style={styles.modalStat}>
-              <Text style={styles.modalStatLabel}>RENT:</Text>
-              <Text style={styles.modalStatValue}>$1,200.18</Text>
-            </View>
-
-            <View style={styles.modalStat}>
-              <Text style={styles.modalStatLabel}>ELECTRICITY:</Text>
-              <Text style={styles.modalStatValue}>$150.45</Text>
-            </View>
-
-            <View style={styles.modalStat}>
-              <Text style={styles.modalStatLabel}>WATER BILL:</Text>
-              <Text style={styles.modalStatValue}>$50.12</Text>
-            </View>
-
-            <View style={styles.modalStat}>
-              <Text style={styles.modalStatLabel}>AC BILL:</Text>
-              <Text style={styles.modalStatValue}>$100.00</Text>
-            </View>
-
-            <View style={styles.modalStat}>
-              <Text style={styles.modalStatLabel}>TOTAL</Text>
-              <Text style={styles.modalStatValue}>$1450.00</Text>
-            </View>
-
-            <TouchableOpacity style={styles.closeButton} onPress={() => { setIsBudgetModalVisible(false) }}>
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
       {/* Payment Modal */}
-      <Modal visible={isPaymentModalVisible}
-        animationType="slide"
-        transparent={true}>
-        <View style={{ flex: 1, backgroundColor: "white" }}>
-
-          {/* TOP HEADER SECTION */}
-          <View style={styles.paymentModalHeader}>
-            <Text style={[styles.headerText, { marginLeft: "40%", marginTop: "10%" }]}> Payments </Text>
-            <TouchableOpacity onPress={() => { setIsPaymentModalVisible(false) }} style={{ marginTop: "10%" }}>
-              <Text style={styles.headerText}> Cancel</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={{ gap: "5%", padding: "4%" }}>
-            <Text style={{ fontSize: 24, alignSelf: "center" }}>Secure Payment</Text>
-
-            <Text style={{ textAlign: "center", color: "grey", fontSize: 15, alignSelf: "center" }}>Your credit or debit information will be kept{'\n'} encrypted and secure</Text>
-
-            <Text style={{ backgroundColor: "#ededed", textAlign: "center", paddingVertical: "4%", width: "100%", borderRadius: "2%", fontSize: 18, alignSelf: "center" }}>Account: 924371244</Text>
-
-            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-              <Text style={{ fontSize: 18, alignSelf: "center" }}>Amount</Text>
-              <Text style={{ fontSize: 18, borderWidth: 1, padding: 5, borderRadius: 5, borderColor: "grey", width: "25%" }}>$80.01</Text>
+      <Modal visible={isPaymentModalVisible} transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Secure Payment</Text>
+              <TouchableOpacity onPress={() => setIsPaymentModalVisible(false)}>
+                <Text style={styles.closeButton}>×</Text>
+              </TouchableOpacity>
             </View>
-            <View style={{ marginBottom: "10%", height: 2, backgroundColor: "#E0E0E0" }}></View>
+            
+            <View style={{padding: 20}}>
+              <Text style={styles.paymentDescription}>
+                Your payment information will be kept encrypted and secure
+              </Text>
+              
+              <View style={styles.accountInfo}>
+                <Text>Account Number</Text>
+                <Text style={styles.accountNumber}>924371244</Text>
+              </View>
 
-            <Text style={{ alignSelf: "center" }}>Enter your card details</Text>
-            <Image source={paymentMethodsImage} style={{ alignSelf: "center", height: "5%", width: "70%" }}></Image>
+              <View>
+                <Text>Amount</Text>
+                <TextInput
+                  style={styles.amountField}
+                  placeholder="$84.30"
+                  value={amount}
+                  onChangeText={setAmount}
+                  editable={false}
+                  keyboardType="numeric"
+                  maxLength={10}
+                />
+              </View>
 
-            <LoginButton text={"Confirm Payment"}></LoginButton>
-
+              <Image source={paymentMethodsImage} style={styles.paymentMethods} />
+              
+              <LoginButton text="Confirm Payment" />
+            </View>
           </View>
         </View>
       </Modal>
-
-
     </View>
   );
 }
 
-// Documents Card
-const Card = ({ title, onPress, expiryDate, startDate, endDate }) => (
-  <TouchableOpacity style={styles.card} onPress={onPress}>
-    <Text style={styles.cardTitle}>{title}</Text>
-    {expiryDate && <Text style={styles.expiryText}>{expiryDate}</Text>}
-    {startDate && endDate && <Text style={styles.periodText}>Period: {startDate} - {endDate}</Text>}
-  </TouchableOpacity>
-);
-
-// Toggle Button
-const ToggleButton = ({ text, onPress, style }) => (
-  <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
-    <Text style={styles.buttonText}>{text}</Text>
-  </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#f9f9f9",
-  },
-  header: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: primaryColor,
-    marginBottom: 10,
-  },
-  description: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 20,
+  sectionHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
   },
   sectionHeader: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
     color: primaryColor,
-    marginBottom: 10,
   },
-  card: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
+  payAllButton: {
+    color: secondaryColor,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  roommateCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 15,
+    marginVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  roommateInfo: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  roommateName: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 5,
+    alignSelf: 'flex-start',
+  },
+  statusText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  amountText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: primaryColor,
+  },
+  billCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
     padding: 15,
     marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  cardTitle: {
-    fontSize: 18,
-    color: '#333',
-  },
-  button: {
-    backgroundColor: primaryColor,
-    borderRadius: 8,
-    padding: 15,
-    marginRight: 10,
+  billInfo: {
     flex: 1,
-    alignItems: 'center',
   },
-  buttonText: {
-    color: 'white',
+  billTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
-  webViewContainer: {
-    marginTop: 20,
-    flex: 0,
-    height: '45%',
-  },
-  expiryText: {
+  billPeriod: {
     fontSize: 14,
-    color: '#555',
+    color: '#666',
     marginTop: 4,
   },
-  modalOverlay: {
+  billAmountContainer: {
+    alignItems: 'flex-end',
+  },
+  billAmount: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: primaryColor,
+  },
+  payButton: {
+    backgroundColor: secondaryColor,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  payButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalContainer: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     backgroundColor: 'white',
+    width: '90%',
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 20,
-    borderRadius: 10,
-    width: '80%',
-    alignItems: 'flex-start',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: primaryColor,
-    marginBottom: 20,
-  },
-  modalStat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    width: '100%',
-  },
-  modalStatLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginRight: 10,
-    flex: 1,
-  },
-  modalStatValue: {
-    fontSize: 18,
-    color: '#555',
-    flex: 1,
-    textAlign: 'right',
   },
   closeButton: {
-    marginTop: 20,
-    backgroundColor: primaryColor,
-    padding: 10,
+    fontSize: 32,
+    color: '#666',
+  },
+  paymentDescription: {
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: 20,
+  },
+  accountInfo: {
+    backgroundColor: '#f5f5f5',
+    padding: 15,
     borderRadius: 8,
+    marginBottom: 20,
   },
-
-  // PAYMENT MODAL STYLING
-  paymentModalHeader: {
-    padding: "3%",
+  accountNumber: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  amountField: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  paymentMethods: {
+    width: '100%',
+    height: 50,
+    resizeMode: 'contain',
+  },
+  pdfViewerContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'white',
+    zIndex: 1000,
+  },
+  closePdfButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: primaryColor,
-    height: "10%",
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  headerText: {
-    alignContent: "center",
-    color: "white",
-    fontWeight: "500",
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1001, // make sure the close button is on top of the pdf viewer
   },
 
-  icon: {
-    width: 30,
-    height: 30,
-    margin: 10,
+  toggleContainer: {
+    flexDirection: 'row',
+    margin: 15,
   },
-
-
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  activeToggleButton: {
+    backgroundColor: primaryColor,
+  },
+  toggleText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  activeToggleText: {
+    color: 'white',
+  },
 });
