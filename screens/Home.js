@@ -264,7 +264,7 @@ export function HomeScreen({ navigation }) {
 
 
       {/* Mini cards */}
-      <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-around", marginVertical: "4%" }}>
+      <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-around", marginVertical: "1%" }}>
         <MiniCard title="Packages" detail="0" icon={icons.packageIcon} />
         <MiniCard title="Announcements" detail={announcements.length} icon={icons.announcementIcon} />
       </View>

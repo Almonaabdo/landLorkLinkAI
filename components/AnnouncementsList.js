@@ -29,7 +29,7 @@ const AnnouncementsList = ({ announcements, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal:"4%",
-    marginVertical:"3%",
+    marginVertical:"1%",
   },
   card: 
   {
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     width:"100%",
     backgroundColor: '#e6e6fa',
     borderRadius: 10,
-    padding: 20,
+    padding: 10,
     elevation: 3,
     marginBottom: 16,
     shadowColor: '#000',
