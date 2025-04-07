@@ -7,9 +7,11 @@ import { stylesLogin } from "../styles/stylesLogin.js";
 import { LoginButton } from "../components/Buttons.js";
 import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../Functions.js"; // Ensure deleteDocument is included
 import { useFocusEffect } from "@react-navigation/native";
+import Feather from '@expo/vector-icons/Feather';
+
+
 
 const penIcon = require(".././assets/penIcon.png");
-const CloseIcon = require(".././assets/close.png");
 const personImage = require(".././assets/person.jpg");
 
 export function AnnouncementsScreen({ navigation }) {
@@ -181,7 +183,7 @@ export function AnnouncementsScreen({ navigation }) {
         animationType="slide"
         presentationStyle="pageSheet">
         <TouchableOpacity onPress={() => { setIsCreatePost(false) }}>
-          <Image source={CloseIcon} style={StylesHome.IconsSmall} />
+          <Feather style={{alignSelf:"flex-end", padding:10}} name="x" size={24} color={'#000000'}/>
           <Text style={StylesHome.TextHeader}>Write Announcement</Text>
         </TouchableOpacity>
 
@@ -216,7 +218,7 @@ export function AnnouncementsScreen({ navigation }) {
       <Modal visible={isEditPost} onRequestClose={() => setIsEditPost(false)} animationType="slide" style={{gap: '1%'}}>
         
         <TouchableOpacity onPress={() => { setIsEditPost(false); setAnnouncementTitle(""); setAnnouncementDetails(""); }}>
-          <Image source={CloseIcon} style={StylesHome.IconsSmall} />
+          <Feather style={{alignSelf:"flex-end", padding:10}} name="x" size={24} color={'#000000'}/>
 
           {/* modal title */}
           <Text style={StylesHome.TextHeader}>Edit Announcement</Text>

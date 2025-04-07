@@ -8,8 +8,7 @@ const primaryColor = "#3e1952";
 const secondaryColor = "#6a3093";
 const accentColor = "#a044ff";
 
-const budgetIcon = require(".././assets/budgetIcon.png");
-const historyIcon = require(".././assets/historyIcon.png");
+
 const paymentMethodsImage = require(".././assets/paymentsMethod.jpg");
 const personImage = require(".././assets/person.jpg");
 

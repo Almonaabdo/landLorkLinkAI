@@ -35,13 +35,6 @@ const primaryColor = "#3e1952";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// Importing local icons
-const HomeIcon = require("./assets/homeIcon.png");
-const ProfileIcon = require("./assets/profileIcon.png");
-const AnnouncementIcon = require("./assets/announcementsIcon.png");
-const DocumentsIcon = require("./assets/documentsIcon.png");
-const ContactIcon = require("./assets/contactIcon.png");
-const EventsIcon = require("./assets/calendarIcon.png");
 
 // Screen Header options
 const defaultScreenOptions = 

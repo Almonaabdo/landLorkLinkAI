@@ -23,7 +23,6 @@ import Feather from '@expo/vector-icons/Feather';
 
 
 // Import required assets for icons and images
-const profileImage = require("../assets/profileUser.png");
 const buildingIcon = require(".././assets/buildingIcon.png");
 const phoneIcon = require(".././assets/phoneIcon.png");
 const editIcon = require("../assets/penIcon.png");

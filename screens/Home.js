@@ -22,18 +22,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MiniCard from "../components/MiniCard.js";
 import Feather from '@expo/vector-icons/Feather';
 // Icons
-const darkBlue = "#2e395d";
 const icons = {
   WrenchIcon: require(".././assets/wrenchIcon.png"),
-  CloseIcon: require(".././assets/close.png"),
-  AddImagesLogo: require(".././assets/addImagesLogo.png"),
-  CameraLogo: require(".././assets/cameraLogo.png"),
-  GalleryLogo: require(".././assets/galleryLogo.png"),
-  ArrowDownIcon: require(".././assets/arrowDownIcon.png"),
-  HouseImage: require(".././assets/houseImage.png"),
   NfcScannerScreen: require(".././assets/nfcScannerScreen.png"),
   DoorHandleIcon: require(".././assets/doorHandleIcon.png"),
-  announcementsBackground: require(".././assets/announcementsBackground.jpg"),
   announcementIcon: require(".././assets/announcementIcon.png"),
   maintainenceBackground: require(".././assets/maintainancebackground.jpg"),
   dashboardIcon: require(".././assets/dashboardIcon.png"),
