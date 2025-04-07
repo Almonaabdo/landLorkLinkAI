@@ -15,15 +15,8 @@ import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import RequestCard from '../components/RequestCard';
 import { fetchDocuments } from '../Functions';
 import { useFocusEffect } from '@react-navigation/native';
+import Feather from '@expo/vector-icons/Feather';
 
-
-// levels of prioreties
-const priorityOrder =
-{
-  High: 1,
-  Medium: 2,
-  Low: 3,
-};
 
 // Sort according to priority from highest to lowest
 const sortRequestsByPriority = (requests) => {
@@ -35,22 +28,18 @@ export function Maintenances({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const getData = async () => 
-  {
-    try 
-    {
+  const getData = async () => {
+    try {
       // fetch data from databse.
       setLoading(true);
       const fetchedRequests = await fetchDocuments("repairRequests");
       const sortedRequests = sortRequestsByPriority(fetchedRequests); // Sort by priority
       setRequests(sortedRequests);
     } 
-    catch (err) 
-    {
+    catch (err) {
       setError(err.message);
     } 
-    finally 
-    {
+    finally {
       setLoading(false);
     }
   };
@@ -62,15 +51,14 @@ export function Maintenances({ navigation }) {
     }, [])
   );
 
-  if (loading)
-  {
+  if (loading){
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
-
-  if (error) 
-  {
+  if (error) {
     return <Text>Error fetching requests: {error}</Text>;
   }
+
+
   return (
     <ScrollView style={{ flex: 1, padding: 12, }}>
 
@@ -85,6 +73,7 @@ export function Maintenances({ navigation }) {
           status={request.status}
           createdAt={request.createdAt}
           priority={request.priority}
+          navigation = {navigation}
         />
       ))}
       

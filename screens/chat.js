@@ -1,26 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    ScrollView,
-    StyleSheet,
-    SafeAreaView,
-    KeyboardAvoidingView,
-    Platform,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const ChatScreen = ({ route }) => {
+const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const { ticketId } = route.params;
+    const { ticketId } = "Qwe";
 
-    // This would be replaced with actual API calls to fetch messages
     useEffect(() => {
-        // TODO: Fetch messages for the specific ticketId from your database
-        // For now, we'll use dummy data
+        // Fetching dummy messages as a placeholder
         const dummyMessages = [
             { id: 1, text: 'Hello, how can I help you with this maintenance issue?', sender: 'support' },
             { id: 2, text: 'The AC unit is not working properly', sender: 'user' },
@@ -31,7 +19,7 @@ const ChatScreen = ({ route }) => {
 
     const handleSend = () => {
         if (newMessage.trim()) {
-            // TODO: Send message to your backend
+            // Append the new message
             const message = {
                 id: messages.length + 1,
                 text: newMessage,
@@ -49,15 +37,18 @@ const ChatScreen = ({ route }) => {
                 <Text style={styles.ticketId}>Ticket #{ticketId}</Text>
             </View>
 
+            {/* Use KeyboardAvoidingView to avoid the keyboard covering the input */}
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardAvoidingView}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0} // Adjust for iOS devices
             >
                 <ScrollView
                     style={styles.messagesContainer}
                     contentContainerStyle={styles.messagesContent}
-                    ref={ref => this.scrollView = ref}
-                    onContentSizeChange={() => this.scrollView.scrollToEnd({ animated: true })}
+                    //keyboardShouldPersistTaps="handled" // To prevent input loss when tapping outside
+                    //ref={ref => this.scrollView = ref}
+                    //onContentSizeChange={() => 
                 >
                     {messages.map((message) => (
                         <View
@@ -144,9 +135,11 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         padding: 16,
+        paddingVertical: 30,
         backgroundColor: '#fff',
         borderTopWidth: 1,
         borderTopColor: '#e0e0e0',
+        marginBottom: '-7%',
     },
     input: {
         flex: 1,
@@ -168,4 +161,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ChatScreen; 
+export default ChatScreen;

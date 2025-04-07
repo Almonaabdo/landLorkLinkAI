@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+import { TouchableOpacity } from 'react-native';
 
-const RequestCard = ({ title, type, details, status, createdAt, priority }) => {
+const RequestCard = ({ title, type, details, status, createdAt, priority, navigation }) => {
   return (
     <View style={styles.cardContainer}>
       {/* Title */}
@@ -10,13 +12,13 @@ const RequestCard = ({ title, type, details, status, createdAt, priority }) => {
       {/* Type and Priority */}
       <View style={styles.metaRow}>
         <View style={styles.typeContainer}>
-          <Text style={styles.type}>{type}</Text>
         </View>
         <View style={[styles.priorityBadge, getPriorityStyle(priority)]}>
           <Text style={styles.priorityText}>
             {priority}
           </Text>
         </View>
+        
       </View>
 
       {/* Description */}
@@ -31,6 +33,11 @@ const RequestCard = ({ title, type, details, status, createdAt, priority }) => {
           {new Date(createdAt).toLocaleDateString()}
         </Text>
       </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
+        <Feather name="message-square" size={24} color="black" />
+      </TouchableOpacity>
+
     </View>
   );
 };
