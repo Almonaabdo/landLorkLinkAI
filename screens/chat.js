@@ -1,32 +1,60 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { db } from '../firebaseConfig';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { addDocument } from '../Functions';
 
 const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
     const { ticketId } = "Qwe";
 
     useEffect(() => {
-        // Fetching dummy messages as a placeholder
-        const dummyMessages = [
-            { id: 1, text: 'Hello, how can I help you with this maintenance issue?', sender: 'support' },
-            { id: 2, text: 'The AC unit is not working properly', sender: 'user' },
-            { id: 3, text: 'I understand. When did you first notice the issue?', sender: 'support' },
-        ];
-        setMessages(dummyMessages);
+        getMessages();
     }, [ticketId]);
 
-    const handleSend = () => {
+    const getMessages = async () => {
+        try {
+            const messagesRef = collection(db, 'messages');
+            const querySnapshot = await getDocs(messagesRef);
+            const fetchedMessages = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                text: doc.data().text,
+                sender: doc.data().sender
+            }));
+            setMessages(fetchedMessages);
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+    };
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await getMessages();
+        setRefreshing(false);
+    };
+
+    const handleSend = async () => {
         if (newMessage.trim()) {
-            // Append the new message
-            const message = {
-                id: messages.length + 1,
-                text: newMessage,
-                sender: 'user',
-            };
-            setMessages([...messages, message]);
-            setNewMessage('');
+            try {
+                const message = {
+                    text: newMessage,
+                    sender: 'user',
+                    timestamp: new Date()
+                };
+
+                // Add to Firestore
+                const messagesRef = collection(db, 'messages');
+                await addDoc(messagesRef, message);
+
+                // Update local state
+                setMessages([...messages, { ...message, id: messages.length + 1 }]);
+                setNewMessage('');
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
         }
     };
 
@@ -46,9 +74,15 @@ const ChatScreen = () => {
                 <ScrollView
                     style={styles.messagesContainer}
                     contentContainerStyle={styles.messagesContent}
-                    //keyboardShouldPersistTaps="handled" // To prevent input loss when tapping outside
-                    //ref={ref => this.scrollView = ref}
-                    //onContentSizeChange={() => 
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                        />
+                    }
+                //keyboardShouldPersistTaps="handled" // To prevent input loss when tapping outside
+                //ref={ref => this.scrollView = ref}
+                //onContentSizeChange={() => 
                 >
                     {messages.map((message) => (
                         <View
