@@ -1,57 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { db } from '../firebaseConfig';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { db, auth } from '../firebaseConfig';
+import { collection, getDocs, addDoc, query, orderBy } from 'firebase/firestore';
 import { addDocument } from '../Functions';
 
 const ChatScreen = () => {
+    // State for storing messages and new message input
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [refreshing, setRefreshing] = useState(false);
     const { ticketId } = "Qwe";
+    // Get current user's ID from Firebase Auth
+    const currentUserId = auth.currentUser?.uid;
 
+    // Fetch messages when component mounts or ticketId changes
     useEffect(() => {
         getMessages();
     }, [ticketId]);
 
+    // Function to fetch messages from Firestore
     const getMessages = async () => {
         try {
+            // Get reference to messages collection
             const messagesRef = collection(db, 'messages');
-            const querySnapshot = await getDocs(messagesRef);
+            // Create query to order messages by timestamp
+            const q = query(messagesRef, orderBy('timestamp', 'asc'));
+            // Fetch documents from the collection
+            const querySnapshot = await getDocs(q);
+            // Transform Firestore documents into message objects
             const fetchedMessages = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 text: doc.data().text,
-                sender: doc.data().sender
+                sender: doc.data().sender,
+                timestamp: doc.data().timestamp
             }));
+            // Update messages state with fetched messages
             setMessages(fetchedMessages);
         } catch (error) {
             console.error('Error fetching messages:', error);
         }
     };
 
+    // Function to handle pull-to-refresh
     const onRefresh = async () => {
-        setRefreshing(true);
-        await getMessages();
-        setRefreshing(false);
+        setRefreshing(true);  // Show refresh indicator
+        await getMessages();  // Fetch latest messages
+        setRefreshing(false); // Hide refresh indicator
     };
 
+    // Function to handle sending new messages
     const handleSend = async () => {
         if (newMessage.trim()) {
             try {
+                // Create message object with timestamp
                 const message = {
                     text: newMessage,
-                    sender: 'user',
+                    sender: currentUserId,
                     timestamp: new Date()
                 };
 
-                // Add to Firestore
+                // Add message to Firestore
                 const messagesRef = collection(db, 'messages');
                 await addDoc(messagesRef, message);
 
-                // Update local state
+                // Update local state with new message
                 setMessages([...messages, { ...message, id: messages.length + 1 }]);
-                setNewMessage('');
+                setNewMessage(''); // Clear input field
             } catch (error) {
                 console.error('Error sending message:', error);
             }
@@ -89,10 +104,21 @@ const ChatScreen = () => {
                             key={message.id}
                             style={[
                                 styles.messageBubble,
-                                message.sender === 'user' ? styles.userMessage : styles.supportMessage,
+                                // Style based on whether message is from current user
+                                message.sender === currentUserId
+                                    ? styles.userMessage
+                                    : styles.otherMessage
                             ]}
                         >
-                            <Text style={styles.messageText}>{message.text}</Text>
+                            <Text style={[
+                                styles.messageText,
+                                // Text color based on message type
+                                message.sender === currentUserId
+                                    ? styles.userMessageText
+                                    : styles.otherMessageText
+                            ]}>
+                                {message.text}
+                            </Text>
                         </View>
                     ))}
                 </ScrollView>
@@ -152,19 +178,21 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginBottom: 8,
     },
+    // Styles for messages sent by current user
     userMessage: {
         alignSelf: 'flex-end',
-        backgroundColor: '#007AFF',
+        backgroundColor: '#007AFF', // Blue bubble
     },
-    supportMessage: {
+    userMessageText: {
+        color: '#fff', // White text
+    },
+    // Styles for messages sent by others
+    otherMessage: {
         alignSelf: 'flex-start',
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
+        backgroundColor: '#333', // Black bubble
     },
-    messageText: {
-        fontSize: 16,
-        color: '#333',
+    otherMessageText: {
+        color: '#fff', // White text
     },
     inputContainer: {
         flexDirection: 'row',
