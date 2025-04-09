@@ -35,10 +35,10 @@ export function Maintenances({ navigation }) {
       const fetchedRequests = await fetchDocuments("repairRequests");
       const sortedRequests = sortRequestsByPriority(fetchedRequests); // Sort by priority
       setRequests(sortedRequests);
-    } 
+    }
     catch (err) {
       setError(err.message);
-    } 
+    }
     finally {
       setLoading(false);
     }
@@ -51,7 +51,7 @@ export function Maintenances({ navigation }) {
     }, [])
   );
 
-  if (loading){
+  if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
   if (error) {
@@ -63,7 +63,7 @@ export function Maintenances({ navigation }) {
     <ScrollView style={{ flex: 1, padding: 12, }}>
 
       {/*Loop thru all requests and displays them in cards */}
-      {requests.map((request, index) => 
+      {requests.map((request, index) =>
       (
         <RequestCard
           key={index}
@@ -73,10 +73,11 @@ export function Maintenances({ navigation }) {
           status={request.status}
           createdAt={request.createdAt}
           priority={request.priority}
-          navigation = {navigation}
+          navigation={navigation}
+          requestId={request.requestId}
         />
       ))}
-      
+
     </ScrollView>
   );
 }

@@ -10,7 +10,7 @@
 */
 
 import React, { useState } from "react";
-import { RefreshControl, Text,Linking, Image, Animated, TouchableOpacity, Modal, TextInput, StatusBar, ScrollView, View } from "react-native";
+import { RefreshControl, Text, Linking, Image, Animated, TouchableOpacity, Modal, TextInput, StatusBar, ScrollView, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { SelectList } from 'react-native-dropdown-select-list';
 import { addDocument, fetchDocuments } from "../Functions.js";
@@ -21,6 +21,9 @@ import AnnouncementsList from "../components/AnnouncementsList.js";
 import { LinearGradient } from 'expo-linear-gradient';
 import MiniCard from "../components/MiniCard.js";
 import Feather from '@expo/vector-icons/Feather';
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig.js";
+
 // Icons
 const icons = {
   WrenchIcon: require(".././assets/wrenchIcon.png"),
@@ -96,7 +99,12 @@ export function HomeScreen({ navigation }) {
       return;
     }
 
+    // Get the current number of requests to generate the next ID
+    const fetchedRequests = await fetchDocuments("repairRequests");
+    const nextRequestId = fetchedRequests.length + 1;
+
     const repairRequestData = {
+      requestId: nextRequestId,
       title: issueTitle,
       description: issueDescription,
       type: selected,
@@ -108,7 +116,7 @@ export function HomeScreen({ navigation }) {
 
     try {
       await addDocument("repairRequests", repairRequestData);
-      alert("Repair request submitted successfully.");
+      alert(`Repair request #${nextRequestId} submitted successfully.`);
       // Reset fields after submission
       setIssueTitle("");
       setIssueDescription("");
@@ -176,7 +184,7 @@ export function HomeScreen({ navigation }) {
       if (mode === "Gallery") {
         await ImagePicker.requestMediaLibraryPermissionsAsync();
         imageResult = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
           allowsEditing: false,
           quality: 1,
         });
@@ -314,7 +322,7 @@ export function HomeScreen({ navigation }) {
                   fontSize: 16
                 }}
                 onChangeText={setIssueTitle}
-                value={issueTitle}/>
+                value={issueTitle} />
             </View>
 
             {/* Issue Description */}
@@ -383,13 +391,13 @@ export function HomeScreen({ navigation }) {
                 <Feather name="image" size={20} color="#3182CE" />
                 <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Add Image</Text>
               </View>
-              <TouchableOpacity 
-                onPress={() => setImagePickerModalVisible(true)} 
-                style={{ 
-                  height: 100, 
-                  borderWidth: 1, 
-                  borderColor: '#e0e0e0', 
-                  borderRadius: 8, 
+              <TouchableOpacity
+                onPress={() => setImagePickerModalVisible(true)}
+                style={{
+                  height: 100,
+                  borderWidth: 1,
+                  borderColor: '#e0e0e0',
+                  borderRadius: 8,
                   backgroundColor: "#f8f8f8",
                   justifyContent: 'center',
                   alignItems: 'center'
@@ -440,14 +448,14 @@ export function HomeScreen({ navigation }) {
 
                 {/* Image Upload Buttons */}
                 <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 20 }}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => uploadImage("Camera")}
                     style={{ alignItems: 'center' }}>
                     <Feather name="camera" size={40} color="#3182CE" />
                     <Text style={{ marginTop: 8, color: '#333' }}>Camera</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => uploadImage("Gallery")}
                     style={{ alignItems: 'center' }}>
                     <Feather name="image" size={40} color="#3182CE" />
@@ -456,10 +464,10 @@ export function HomeScreen({ navigation }) {
                 </View>
 
                 {/* Close Button */}
-                <TouchableOpacity 
-                  onPress={() => setImagePickerModalVisible(false)} 
-                  style={{ 
-                    padding: 10, 
+                <TouchableOpacity
+                  onPress={() => setImagePickerModalVisible(false)}
+                  style={{
+                    padding: 10,
                     alignItems: 'center',
                     borderTopWidth: 1,
                     borderTopColor: '#f0f0f0'
