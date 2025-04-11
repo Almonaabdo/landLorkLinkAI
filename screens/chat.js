@@ -28,7 +28,7 @@ const ChatScreen = ({ route }) => {
         const q = query(messagesRef);
 
         // Set up real-time listener for message updates
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             // Transform Firestore documents into message objects
             const fetchedMessages = querySnapshot.docs.map((doc) => ({
                 id: doc.id,
@@ -42,6 +42,20 @@ const ChatScreen = ({ route }) => {
 
             // Update messages state with sorted messages
             setMessages(fetchedMessages);
+
+            // If no messages exist, add initial welcome message
+            if (fetchedMessages.length === 0) {
+                try {
+                    const initialMessage = {
+                        text: "Welcome to the maintenance chat! How can we help you today?",
+                        sender: "system",
+                        timestamp: new Date()
+                    };
+                    await addDocument(messagesRef, initialMessage);
+                } catch (error) {
+                    console.error('Error adding initial message:', error);
+                }
+            }
         }, (error) => {
             console.error('Error fetching messages:', error);
         });
