@@ -2,9 +2,8 @@ import { React, useState, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, Modal, TextInput, StatusBar, Alert } from "react-native";
 import { Swipeable } from 'react-native-gesture-handler';
 import AnnouncementCard from "../components/AnnouncementCard.js";
-import { StylesHome } from "../styles/stylesHome.js";
-import { stylesLogin } from "../styles/stylesLogin.js";
-import { LoginButton } from "../components/Buttons.js";
+import { globalStyles } from "../styles/globalStyles.js";
+import { PrimaryButton } from "../components/Buttons.js";
 import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../Functions.js"; // Ensure deleteDocument is included
 import { useFocusEffect } from "@react-navigation/native";
 import Feather from '@expo/vector-icons/Feather';
@@ -179,13 +178,13 @@ export function AnnouncementsScreen({ navigation }) {
       <Modal visible={isCreatePost} onRequestClose={() => setIsCreatePost(false)} animationType="slide" presentationStyle="pageSheet">
         <TouchableOpacity onPress={() => { setIsCreatePost(false) }}>
           <Feather style={{alignSelf:"flex-end", padding:10}} name="x" size={24} color={'#000000'}/>
-          <Text style={StylesHome.TextHeader}>Write Announcement</Text>
+          <Text style={globalStyles.textHeader}>Write Announcement</Text>
         </TouchableOpacity>
 
-        <View style={stylesLogin.container}>
+        <View style={globalStyles.container}>
           <TextInput
             placeholder="Announcement Title"
-            style={stylesLogin.textInput}
+            style={globalStyles.textInput}
             placeholderTextColor="black"
             onChangeText={(text) => {
               setAnnouncementTitle(text);
@@ -195,7 +194,7 @@ export function AnnouncementsScreen({ navigation }) {
 
           <TextInput
             placeholder="Announcement Details"
-            style={[stylesLogin.textInput, { height: 150 }]}
+            style={[globalStyles.textInput, { height: 150 }]}
             placeholderTextColor="black"
             onChangeText={(text) => {
               setAnnouncementDetails(text);
@@ -203,9 +202,9 @@ export function AnnouncementsScreen({ navigation }) {
             }}
             value={announcementDetails} />
 
-          <LoginButton text="Post" onPress={handleAnnouncementSubmit} />
+          <PrimaryButton text="Post" onPress={handleAnnouncementSubmit} />
 
-          {viewError === -1 && <Text style={stylesLogin.textError}>Please fill in required fields</Text>}
+          {viewError === -1 && <Text style={globalStyles.textError}>Please fill in required fields</Text>}
         </View>
       </Modal>
 
@@ -215,27 +214,27 @@ export function AnnouncementsScreen({ navigation }) {
         <TouchableOpacity onPress={() => { setIsEditPost(false); setAnnouncementTitle(""); setAnnouncementDetails(""); }}>
           <Feather style={{alignSelf:"flex-end", padding:10}} name="x" size={24} color={'#000000'}/>
           
-          <Text style={StylesHome.TextHeader}>Edit Announcement</Text>
+          <Text style={globalStyles.textHeader}>Edit Announcement</Text>
         </TouchableOpacity>
 
-        <View style={stylesLogin.container}>
+        <View style={globalStyles.container}>
           <TextInput
             placeholder="Announcement Title"
-            style={stylesLogin.textInput}
+            style={globalStyles.textInput}
             placeholderTextColor="black"
             onChangeText={(text) => setAnnouncementTitle(text)}
             value={announcementTitle}/>
 
           <TextInput
             placeholder="Announcement Details"
-            style={[stylesLogin.textInput, { height: 150 }]}
+            style={[globalStyles.textInput, { height: 150 }]}
             placeholderTextColor="black"
             onChangeText={(text) => setAnnouncementDetails(text)}
             value={announcementDetails}/>
 
-          <LoginButton text="Update" onPress={handleEditSubmit} />
+          <PrimaryButton text="Update" onPress={handleEditSubmit} />
 
-          {viewError === -1 && <Text style={stylesLogin.textError}>Please fill in required fields</Text>}
+          {viewError === -1 && <Text style={globalStyles.textError}>Please fill in required fields</Text>}
         </View>
       </Modal>
     </ScrollView>

@@ -12,7 +12,7 @@
 // Import necessary React and React Native components for UI elements and functionality
 import React, { useState } from "react";
 import { View, Text, Image, StatusBar, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert } from "react-native";
-import { LoginButton } from "../components/Buttons.js";
+import { PrimaryButton } from "../components/Buttons.js";
 import { auth } from '../firebaseConfig.js';
 import { Checkbox } from 'expo-checkbox';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -187,7 +187,7 @@ export function Profile({ navigation }) {
 
       {/* Sign out section */}
       <View style={styles.signOutSection}>
-        <LoginButton style={{ marginBottom: '10%'}} text="Sign Out" onPress={() => navigation.navigate("SignOut")} component={<Feather name="log-out" size={24} color="white" />} />
+        <PrimaryButton style={{ marginBottom: '10%'}} text="Sign Out" onPress={() => navigation.navigate("SignOut")} component={<Feather name="log-out" size={24} color="white" />} />
       </View>
     </ScrollView>
   );

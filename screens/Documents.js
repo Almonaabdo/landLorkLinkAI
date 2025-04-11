@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StatusBar, StyleSheet, ActivityIndicator, TouchableOpacity, Image, Modal, Button, TextInput, ScrollView } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { LoginButton } from '../components/Buttons';
+import { PrimaryButton } from '../components/Buttons';
 import RoomatesListCard from '../components/RoomatesListCard';
 
 const primaryColor = "#3e1952";
@@ -180,7 +180,7 @@ export function Documents({ navigation }) {
 
               <Image source={paymentMethodsImage} style={styles.paymentMethods} />
               
-              <LoginButton text="Confirm Payment" />
+              <PrimaryButton text="Confirm Payment" />
             </View>
           </View>
         </View>

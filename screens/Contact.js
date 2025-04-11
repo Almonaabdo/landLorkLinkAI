@@ -12,7 +12,7 @@
 
 import { React } from "react";
 import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet, Linking } from "react-native";
-import { LoginButton } from "../components/Buttons";
+import { PrimaryButton } from "../components/Buttons";
 
 // icons
 const emailIcon = require(".././assets/emailIcon.png");
@@ -92,7 +92,7 @@ export function Contact({ navigation }) {
       <View style={{marginVertical:'5%'}}/>
       
 
-      <LoginButton text={"Accommd8u.com"} onPress={()=>{Linking.openURL('https://www.accommod8u.com/')}} />
+      <PrimaryButton text={"Accommd8u.com"} onPress={()=>{Linking.openURL('https://www.accommod8u.com/')}} />
 
 
       {/*SOCIAL MEDIA ICONS*/}

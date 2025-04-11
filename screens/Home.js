@@ -13,10 +13,10 @@ import React, { useState } from "react";
 import { RefreshControl, Text, Linking, Image, Animated, TouchableOpacity, Modal, TextInput, StatusBar, ScrollView, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { SelectList } from 'react-native-dropdown-select-list';
+import { PrimaryButton } from "../components/Buttons.js";
 import { addDocument, fetchDocuments } from "../Functions.js";
 import { useFocusEffect } from "@react-navigation/native";
 import HomeCard from "../components/HomeCard.js";
-import { LoginButton } from "../components/Buttons.js";
 import AnnouncementsList from "../components/AnnouncementsList.js";
 import { LinearGradient } from 'expo-linear-gradient';
 import MiniCard from "../components/MiniCard.js";
@@ -542,7 +542,7 @@ export function HomeScreen({ navigation }) {
           <View style={{ marginVertical: "20%" }} />
 
           {/* CALL 9 1 1 BUTTON */}
-          <LoginButton text={"CALL 9 1 1 "} onPress={() => Linking.openURL(`tel:911`)} component={<Feather name="phone" size={24} color="white" />} />
+          <PrimaryButton text={"CALL 9 1 1 "} onPress={() => Linking.openURL(`tel:911`)} component={<Feather name="phone" size={24} color="white" />} />
 
         </View>
       </Modal>

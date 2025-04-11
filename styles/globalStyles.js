@@ -5,7 +5,7 @@ const borderColor = "#DDD";
 const inputBackground = "#F9F6FC"; // input background
 const fontPrimary = "System";
 
-export const stylesLogin = StyleSheet.create({
+export const globalStyles = StyleSheet.create({
   companyImage: {
     width: "100%",
     resizeMode: "cover",
@@ -71,14 +71,14 @@ export const stylesLogin = StyleSheet.create({
     marginBottom: 14,
   },
 
-  textHeader: {
-    fontSize: 26,
-    fontWeight: "700",
-    fontFamily: fontPrimary,
-    color: primaryColor,
-    marginBottom: 16,
-    textAlign: "center",
-  },
+
+  textHeader:{
+    fontSize: 24,
+    color:primaryColor,
+    alignSelf:"center",
+    marginVertical:5,
+    fontFamily: 'Avenir'
+},
 
   textLabel: {
     color: primaryColor,

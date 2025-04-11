@@ -14,7 +14,7 @@ import { Text, Image, TouchableOpacity, StatusBar, ActivityIndicator, TextInput,
 import { auth, db } from '../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { LoginButton } from "../components/Buttons";
+import { PrimaryButton } from "../components/Buttons";
 import Feather from '@expo/vector-icons/Feather';
 // Logo
 const logoImg = require(".././assets/Accommod8u.jpg");
@@ -165,7 +165,7 @@ export function SignUpScreen({ navigation }) {
         />
 
         {/* Signup Button */}
-        <LoginButton
+        <PrimaryButton
           text={isLoading ? "Creating Account..." : "Sign Up"}
           onPress={handleSignUp}
           disabled={isLoading}
