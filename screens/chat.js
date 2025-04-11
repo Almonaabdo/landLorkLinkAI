@@ -5,31 +5,30 @@ import { db, auth } from '../firebaseConfig';
 import { collection, getDocs, addDoc, query, orderBy, onSnapshot, where, doc, getDoc, setDoc } from 'firebase/firestore';
 import { addDocument } from '../Functions';
 
-// Main ChatScreen component that handles the chat interface for maintenance requests
 const ChatScreen = ({ route }) => {
-    // Extract requestId from navigation route params
+
     const { requestId } = route.params;
 
-    // State management for messages and UI
-    const [messages, setMessages] = useState([]); // Stores all messages for the current request
-    const [newMessage, setNewMessage] = useState(''); // Current message being typed
-    const [refreshing, setRefreshing] = useState(false); // Controls pull-to-refresh state
+    // state management
+    const [messages, setMessages] = useState([]); 
+    const [newMessage, setNewMessage] = useState('');
+    const [isRefreshing, setIsRefreshing] = useState(false); 
 
-    // Get current user's ID from Firebase Authentication
+    // user's ID from Firebase
     const currentUserId = auth.currentUser?.uid;
 
-    // Effect hook to set up real-time message listener
     useEffect(() => {
-        // Create a reference to the ticket document and its messages subcollection
-        const ticketRef = doc(db, 'tickets', `Ticket${requestId}`);
-        const messagesRef = collection(ticketRef, 'messages');
 
-        // Create a query for the messages subcollection
-        const q = query(messagesRef);
+        // Refrences to ticket table and its messages subcollection
+        const ticketTableRef = doc(db, 'tickets', `Ticket${requestId}`);
+        const messagesTableRef = collection(ticketTableRef, 'messages');
+        // query for the messages subcollection
+        const q = query(messagesTableRef);
 
-        // Set up real-time listener for message updates
+        // real-time listener for messages updates
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-            // Transform Firestore documents into message objects
+
+            // array of messages grabbed from database table
             const fetchedMessages = querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 text: doc.data().text,
@@ -40,10 +39,10 @@ const ChatScreen = ({ route }) => {
             // Sort messages by timestamp locally
             fetchedMessages.sort((a, b) => a.timestamp - b.timestamp);
 
-            // Update messages state with sorted messages
+            // store messages in a local array
             setMessages(fetchedMessages);
 
-            // If no messages exist, add initial welcome message
+            // If no messages exist, add initial system message
             if (fetchedMessages.length === 0) {
                 try {
                     const initialMessage = {
@@ -51,11 +50,12 @@ const ChatScreen = ({ route }) => {
                         sender: "system",
                         timestamp: new Date()
                     };
-                    await addDocument(messagesRef, initialMessage);
+                    await addDocument(messagesTableRef, initialMessage);
                 } catch (error) {
                     console.error('Error adding initial message:', error);
                 }
             }
+
         }, (error) => {
             console.error('Error fetching messages:', error);
         });
@@ -64,103 +64,74 @@ const ChatScreen = ({ route }) => {
         return () => unsubscribe();
     }, [requestId]); // Re-run effect when requestId changes
 
-    // Function to handle pull-to-refresh
+
     const onRefresh = async () => {
-        setRefreshing(true);  // Show refresh indicator
-        setRefreshing(false); // Hide refresh indicator
+        setIsRefreshing(true); 
+        setIsRefreshing(false);
     };
 
-    // Function to handle sending new messages
+    // handles sending new messages
     const handleSend = async () => {
-        // Only send if message is not empty
+
+        // send if message has data
         if (newMessage.trim()) {
             try {
-                // Create references to the ticket document and its messages subcollection
+                // References to ticket table and its messages subcollection
                 const ticketRef = doc(db, 'tickets', `Ticket${requestId}`);
                 const messagesRef = collection(ticketRef, 'messages');
 
-                // Create message object with all necessary data
                 const message = {
                     text: newMessage,
                     sender: currentUserId,
                     timestamp: new Date()
                 };
 
-                // Add message to the subcollection
+                // send message to database table
                 await addDoc(messagesRef, message);
-
-                // Clear input field after sending
                 setNewMessage('');
+
             } catch (error) {
                 console.error('Error sending message:', error);
             }
         }
     };
 
-    // Render the chat interface
     return (
         <SafeAreaView style={styles.container}>
             {/* Chat header showing request ID */}
             <View style={styles.header}>
-                <Text style={styles.headerText}>Maintenance Chat</Text>
+                <Text style={{fontSize: 20}}>Maintenance Chat</Text>
                 <Text style={styles.ticketId}>Ticket #{requestId}</Text>
             </View>
 
-            {/* Keyboard-aware view to handle keyboard appearance */}
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.keyboardAvoidingView}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-            >
-                {/* Scrollable message list with pull-to-refresh */}
-                <ScrollView
-                    style={styles.messagesContainer}
-                    contentContainerStyle={styles.messagesContent}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={onRefresh}
-                        />
-                    }
-                >
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1}}>
+                <ScrollView style={{padding:'2%'}} refreshControl={ <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />} >
+
                     {/* Map through messages and render each one */}
                     {messages.map((message) => (
-                        <View
-                            key={message.id}
-                            style={[
-                                styles.messageBubble,
-                                // Style message bubble differently based on sender
-                                message.sender === currentUserId
-                                    ? styles.userMessage
-                                    : styles.otherMessage
-                            ]}
-                        >
-                            <Text style={[
-                                styles.messageText,
-                                // Style text differently based on sender
-                                message.sender === currentUserId
-                                    ? styles.userMessageText
-                                    : styles.otherMessageText
-                            ]}>
-                                {message.text}
-                            </Text>
+
+                        <View key={message.id} style={[ styles.messageBubble, message.sender === currentUserId? styles.userMessage : styles.otherMessage]}>
+                            <Text style={{color:'white'}}>{message.text}</Text>
                         </View>
                     ))}
                 </ScrollView>
 
-                {/* Message input area */}
+                {/* text input */}
                 <View style={styles.inputContainer}>
                     <TextInput
-                        style={styles.input}
+                        style={styles.textInput}
                         value={newMessage}
                         onChangeText={setNewMessage}
                         placeholder="Type your message..."
                         placeholderTextColor="#666"
                         multiline
                     />
+
+                    {/* send button */}
                     <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
                         <Ionicons name="send" size={24} color="#fff" />
                     </TouchableOpacity>
+
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -179,48 +150,30 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
     },
-    headerText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-    },
     ticketId: {
         fontSize: 14,
         color: '#666',
         marginTop: 4,
     },
-    keyboardAvoidingView: {
-        flex: 1,
-    },
-    messagesContainer: {
-        flex: 1,
-        padding: 16,
-    },
-    messagesContent: {
-        paddingBottom: 16,
-    },
+
+    // MESSAGES TYLING
     messageBubble: {
         maxWidth: '80%',
         padding: 12,
-        borderRadius: 20,
+        borderRadius: 10,
         marginBottom: 8,
     },
-    // Styles for messages sent by current user
     userMessage: {
         alignSelf: 'flex-end',
-        backgroundColor: '#007AFF', // Blue bubble
+        backgroundColor: '#0051CC',
     },
-    userMessageText: {
-        color: '#fff', // White text
-    },
-    // Styles for messages sent by others
     otherMessage: {
         alignSelf: 'flex-start',
-        backgroundColor: '#333', // Black bubble
+        backgroundColor: '#333',
     },
-    otherMessageText: {
-        color: '#fff', // White text
-    },
+
+    // TEXT INPUT STYLING
+
     inputContainer: {
         flexDirection: 'row',
         padding: 16,
@@ -230,10 +183,10 @@ const styles = StyleSheet.create({
         borderTopColor: '#e0e0e0',
         marginBottom: '-7%',
     },
-    input: {
+    textInput: {
         flex: 1,
         backgroundColor: '#f0f0f0',
-        borderRadius: 20,
+        borderRadius: 16,
         paddingHorizontal: 16,
         paddingVertical: 8,
         marginRight: 8,

@@ -10,26 +10,25 @@ import { useFocusEffect } from "@react-navigation/native";
 import Feather from '@expo/vector-icons/Feather';
 
 
-
-const penIcon = require(".././assets/penIcon.png");
 const personImage = require(".././assets/person.jpg");
 
 export function AnnouncementsScreen({ navigation }) {
+
   const [isCreatePost, setIsCreatePost] = useState(false);
   const [announcementTitle, setAnnouncementTitle] = useState("");
   const [announcementDetails, setAnnouncementDetails] = useState("");
   const [viewError, setViewError] = useState(0);
   const [announcements, setAnnouncements] = useState([]);
-  const [isEditPost, setIsEditPost] = useState(false);  // State to control edit modal
+  const [isEditPost, setIsEditPost] = useState(false);
   const [editId, setEditId] = useState(null);    
 
-  // function that fetches all announcement from database table
+  // fetch announcements from database table
   useFocusEffect(() => {
     const getAnnouncements = async () => {
       try {
         const fetchedAnnouncements = await fetchDocuments("announcements");
 
-        // Sort announcements by createdAt in descending order (newest first)
+        // sort and store announcements in local array  
         fetchedAnnouncements.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         setAnnouncements(fetchedAnnouncements);
@@ -143,8 +142,8 @@ export function AnnouncementsScreen({ navigation }) {
 
   return (
     <ScrollView style={{ flex: 1, padding: 20, backgroundColor: "#f9f9f9" }}>
-      <TouchableOpacity onPress={() => { setIsCreatePost(true) }}>
-        <Image source={penIcon} style={[StylesHome.smallImage]} />
+      <TouchableOpacity onPress={() => { setIsCreatePost(true) }} style={{alignItems:'center'}}>
+        <Feather name="edit" size={32} color={'black'}/>
       </TouchableOpacity>
 
       {announcements.map((announcement) => (
@@ -177,11 +176,7 @@ export function AnnouncementsScreen({ navigation }) {
 
 
       {/* CREATE POST MODAL */}
-      <Modal
-        visible={isCreatePost}
-        onRequestClose={() => setIsCreatePost(false)}
-        animationType="slide"
-        presentationStyle="pageSheet">
+      <Modal visible={isCreatePost} onRequestClose={() => setIsCreatePost(false)} animationType="slide" presentationStyle="pageSheet">
         <TouchableOpacity onPress={() => { setIsCreatePost(false) }}>
           <Feather style={{alignSelf:"flex-end", padding:10}} name="x" size={24} color={'#000000'}/>
           <Text style={StylesHome.TextHeader}>Write Announcement</Text>
@@ -215,17 +210,13 @@ export function AnnouncementsScreen({ navigation }) {
       </Modal>
 
       {/*Edit post modal*/}
-      <Modal visible={isEditPost} onRequestClose={() => setIsEditPost(false)} animationType="slide" style={{gap: '1%'}}>
+      <Modal visible={isEditPost} onRequestClose={() => setIsEditPost(false)} animationType="slide" presentationStyle="pageSheet">
         
         <TouchableOpacity onPress={() => { setIsEditPost(false); setAnnouncementTitle(""); setAnnouncementDetails(""); }}>
           <Feather style={{alignSelf:"flex-end", padding:10}} name="x" size={24} color={'#000000'}/>
-
-          {/* modal title */}
+          
           <Text style={StylesHome.TextHeader}>Edit Announcement</Text>
         </TouchableOpacity>
-
-        
-
 
         <View style={stylesLogin.container}>
           <TextInput

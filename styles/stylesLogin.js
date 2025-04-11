@@ -1,86 +1,98 @@
-import {StyleSheet} from "react-native";
+import { StyleSheet } from "react-native";
 
-const primaryColor = "#3e1952"
+const primaryColor = "#5E3A87"; // purple
+const borderColor = "#DDD";
+const inputBackground = "#F9F6FC"; // input background
+const fontPrimary = "System";
 
-export const stylesLogin = StyleSheet.create({ 
-    companyImage: 
-    { 
-      width: '100%', 
-      resizeMode:"stretch",
-      alignSelf:'center',
-      height:125,
-      borderRadius: 10, 
-    },
-    smallLogo: 
-    {
-      width: 70, 
-      resizeMode:"contain",
-      alignSelf:"center",
-      marginTop: -20,
-    },
-  
-    container: 
-    {
-      margin:'2%',
-      padding: '4%',
-      borderWidth:1.2,
-      borderColor: '#000',
-      borderRadius: 10,
-      justifyContent: 'center',
-    },
+export const stylesLogin = StyleSheet.create({
+  companyImage: {
+    width: "100%",
+    resizeMode: "cover",
+    alignSelf: "center",
+    height: 140,
+    borderRadius: 16,
+    marginBottom: 20,
+  },
 
-  
-    inputLabel: 
-    {
-      marginBottom: '3%',
-      fontWeight: 'bold',
-    },
-  
-    textInput:
-    {
-      width: '100%',
-      height: '14%',
-      borderColor: '#000',
-      borderWidth: 1,
-      borderRadius: 3,
-      paddingHorizontal: '3%',
-      textAlign:"left",
-      marginBottom: '2%',
-    },
+  smallLogo: {
+    width: 80,
+    resizeMode: "contain",
+    alignSelf: "center",
+    marginTop: -16,
+    marginBottom: 10,
+  },
 
-    textInputSignup:
-    {
-      width: '100%',
-      height: '7.5%',
-      borderColor: '#000',
-      borderWidth: 1,
-      borderRadius: 3,
-      paddingHorizontal: '3%',
-      textAlign:"left",
-      marginBottom: '2%',
-    },
-  
-  
-    textHeader:{
-      fontSize: 24,
-      fontWeight:"bold",
-      fontFamily: 'sans-serif-medium',
-    },
-  
-    textLabel:
-    {
-      color:primaryColor,
-      fontSize:12,
-      padding:'5%',
-      alignSelf:"center",
-      fontWeight:"bold"
-    },
+  container: {
+    margin: "4%",
+    padding: "5%",
+    borderWidth: 1,
+    borderColor: borderColor,
+    borderRadius: 16,
+    backgroundColor: "#FFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+    justifyContent: "center",
+  },
 
-    textError:{
-      color:"red",
-      fontSize:12,
-      fontWeight:"bold",
-      alignSelf:"center",
-      marginVertical: '2%',
-    }
-  }); 
+  inputLabel: {
+    marginBottom: "3%",
+    fontWeight: "600",
+    fontSize: 14,
+    color: "#333",
+  },
+
+  textInput: {
+    width: "100%",
+    height: 50,
+    borderColor: borderColor,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    backgroundColor: inputBackground,
+    fontSize: 15,
+    color: "#333",
+    marginBottom: 16,
+  },
+
+  textInputSignup: {
+    width: "100%",
+    height: 45,
+    borderColor: borderColor,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    backgroundColor: inputBackground,
+    fontSize: 15,
+    color: "#333",
+    marginBottom: 14,
+  },
+
+  textHeader: {
+    fontSize: 26,
+    fontWeight: "700",
+    fontFamily: fontPrimary,
+    color: primaryColor,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+
+  textLabel: {
+    color: primaryColor,
+    fontSize: 13,
+    padding: "5%",
+    alignSelf: "center",
+    fontWeight: "600",
+  },
+
+  textError: {
+    color: "#D32F2F",
+    fontSize: 13,
+    fontWeight: "bold",
+    alignSelf: "center",
+    marginVertical: 8,
+  },
+});

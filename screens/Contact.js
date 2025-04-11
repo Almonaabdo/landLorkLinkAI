@@ -43,7 +43,7 @@ export function Contact({ navigation }) {
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerName}>Paul S</Text>
           <Text style={styles.headerRole}>Building Manager</Text>
-          <Text style={[styles.headerName, {fontSize:22}]}>226-898-0000</Text>
+          <Text style={styles.headerName}>226-898-0000</Text>
         </View>
       </View>
       
@@ -92,9 +92,8 @@ export function Contact({ navigation }) {
       <View style={{marginVertical:'5%'}}/>
       
 
-      <LoginButton text={"Accommd8u.com"} onPress={()=>{Linking.openURL('https://www.accommod8u.com/')}}>
+      <LoginButton text={"Accommd8u.com"} onPress={()=>{Linking.openURL('https://www.accommod8u.com/')}} />
 
-      </LoginButton>
 
       {/*SOCIAL MEDIA ICONS*/}
       <View style={{ height: '3%', flexDirection: 'row', marginVertical: '10%', alignSelf: 'center', justifyContent: 'space-between' }}>

@@ -1,7 +1,7 @@
 /*
 * FILE        : App.js
 * 
-* Description : The router of the app where all different screens and tabs are refrenced to be accessed by the app
+* Description : The root of the app where all different screens and tabs are refrenced to be accessed by the app
 * 
 * Author      : Abdurrahman Almouna, Yafet Tekleab
 * Date        : October 31, 2024
@@ -10,7 +10,7 @@
 */
 
 import React from 'react';
-import { Image, View, Text } from "react-native";
+import { View, Text } from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -39,7 +39,7 @@ const Stack = createStackNavigator();
 // Screen Header options
 const defaultScreenOptions = 
 {
-  headerStyle: { backgroundColor: primaryColor, height:85},
+  headerStyle: { backgroundColor: primaryColor, height:80},
   headerTintColor: '#fff',
 };
 
@@ -84,20 +84,13 @@ const TabNavigator = () => (
         return <TabIcon name={name} label={route.name} focused={focused} />;
       },
       tabBarShowLabel: false,
-      //tabBarActiveTintColor: primaryColor, (styling keep here for later)
+      //tabBarActiveTintColor: 'primaryColor', //(styling keep here for later)
       //tabBarInactiveTintColor: '#888',
-      tabBarStyle: 
-      {
+      tabBarStyle: {
         paddingTop:'2%',
-        height:"10%",
-        backgroundColor: '#ffffff',
-        borderTopColor: 'transparent',
-        position: 'relative',
-        bottom: 0,
-        left: 0,
-        right: 10,
-        borderRadius: 0
+        backgroundColor:'white'
       }
+
     })}>
     
     {/* NAVBAR BUTTONS */}
@@ -125,7 +118,7 @@ export default function App() {
           <Stack.Screen name="Signup" component={SignUpScreen} options={{ title: 'Sign Up' }} />
           <Stack.Screen name="SignOut" component={SignOutScreen} options={{ title: 'Sign Out', headerShown: false }} />
           <Stack.Screen name="Dashboard" component={Dashboard} options={{ title: 'Dashboard'}} />
-          <Stack.Screen name="Chat" component={ChatScreen} options={{ title: 'Chat'}} />
+          <Stack.Screen name="Chat" component={ChatScreen} options={{ title: 'Chat', headerBackTitleVisible: false}} />
         </Stack.Navigator>
 
       </NavigationContainer>
