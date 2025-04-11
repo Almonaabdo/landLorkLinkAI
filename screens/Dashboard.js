@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Dimensions, ScrollView, Modal, TouchableOpacity, Image } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { SelectList } from 'react-native-dropdown-select-list';
-import { LoginButton } from '../components/Buttons';
+import { PrimaryButton } from '../components/Buttons';
 import { Checkbox } from 'expo-checkbox';
 import MiniCard from "../components/MiniCard";
 
@@ -103,7 +103,7 @@ export function Dashboard({ navigation }) {
       <View style={{ marginTop: "10%" }}></View>
 
       {/* VIEW BUTTON */}
-      <LoginButton text={"View"} onPress={() => { setViewApartment(true); }} />
+      <PrimaryButton text={"View"} onPress={() => { setViewApartment(true); }} />
 
 
       {/* APPARTMENT MODAL */}
@@ -141,7 +141,7 @@ export function Dashboard({ navigation }) {
           </View>
 
           <View style={{ marginTop: "10%" }}></View>
-          <LoginButton text={"Close"} onPress={() => { setViewApartment(false) }} />
+          <PrimaryButton text={"Close"} onPress={() => { setViewApartment(false) }} />
 
         </View>
       </Modal>
