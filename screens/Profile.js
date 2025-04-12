@@ -11,7 +11,7 @@
 
 // Import necessary React and React Native components for UI elements and functionality
 import React, { useState } from "react";
-import { View, Text, Image, StatusBar, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, Image, StatusBar, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Animated, Pressable } from "react-native";
 import { PrimaryButton } from "../components/Buttons.js";
 import { auth } from '../firebaseConfig.js';
 import { Checkbox } from 'expo-checkbox';
@@ -20,7 +20,15 @@ import { fetchDocumentByID } from '../Functions.js';
 import { db } from '../firebaseConfig.js';
 import { updateEmail, updatePassword } from 'firebase/auth';
 import Feather from '@expo/vector-icons/Feather';
+import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
+// Constants
+const primaryColor = "#3e1952";
+const secondaryColor = "#6a3093";
+const backgroundColor = "#f8f9fa";
+const textColor = "#2c3e50";
+const borderColor = "#e9ecef";
 
 // Import required assets for icons and images
 const buildingIcon = require(".././assets/buildingIcon.png");
@@ -64,9 +72,19 @@ const EditableField = ({ label, value, isEditing, onEdit, onChangeText, secureTe
           editable={isEditing}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry}
+          placeholder={secureTextEntry ? "Enter new password" : ""}
+          placeholderTextColor="#999"
         />
-        <TouchableOpacity onPress={onEdit} style={styles.editButton}>
-          <Feather name="edit" size={24} color="#3e1952" />
+        <TouchableOpacity
+          onPress={onEdit}
+          style={[styles.editButton, isEditing && styles.editButtonActive]}
+          activeOpacity={0.7}
+        >
+          <Feather
+            name={isEditing ? "check" : "edit-2"}
+            size={20}
+            color={isEditing ? "#4CAF50" : primaryColor}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -82,11 +100,11 @@ const EditableField = ({ label, value, isEditing, onEdit, onChangeText, secureTe
 const ContactCard = ({ icon, text }) => {
   return (
     <View style={styles.contactCard}>
-      <Image source={icon} style={styles.icon}></Image>
-      <Text style={{ fontSize: 18 }}>{text}</Text>
+      <Image source={icon} style={styles.icon} />
+      <Text style={styles.contactText}>{text}</Text>
     </View>
-  )
-}
+  );
+};
 
 /**
  * Profile Component
@@ -98,12 +116,16 @@ export function Profile({ navigation }) {
   const [email, setEmail] = useState(auth.currentUser?.email || "user@example.com");
   const [isNotificationsChecked, setIsNotificationsChecked] = useState(false);
   const [fullName, setFullName] = useState("Full Name");
-  const [profilePicture, setProfilePicture] = useState("");
+  const [profilePicture, setProfilePicture] = useState(null);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const currentUser = auth.currentUser;
+  const [isLoading, setIsLoading] = useState(false);
+  const fadeAnim = React.useRef(new Animated.Value(1)).current;
 
   // Fetch user data from Firestore when component mounts
   if (currentUser) {
@@ -123,89 +145,266 @@ export function Profile({ navigation }) {
       });
   }
 
-
-
-
-
   /**
    * Handles the notification preference toggle
    */
-  const handleNotificationToggle = async () => {
-    //TODO: Implement notification toggle functionality
+  const handleNotificationToggle = (newState) => {
+    setIsNotificationsChecked(newState);
+  };
+
+  // Function to handle email update
+  const handleEmailUpdate = async () => {
+    if (!newEmail || newEmail === email) {
+      Alert.alert('Error', 'Please enter a new email address');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await updateEmail(auth.currentUser, newEmail);
+
+      // Update Firestore
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      await updateDoc(userDocRef, {
+        email: newEmail
+      });
+
+      setEmail(newEmail);
+      setNewEmail('');
+      setIsEditingEmail(false);
+      Alert.alert('Success', 'Email updated successfully!');
+    } catch (error) {
+      console.error('Error updating email:', error);
+      Alert.alert('Error', 'Failed to update email. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to validate password
+  const validatePassword = (password) => {
+    if (password.length < 8) return "Password must be at least 8 characters long";
+    if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter";
+    if (!/[0-9]/.test(password)) return "Password must contain at least one number";
+    if (!/[!@#$%^&*]/.test(password)) return "Password must contain at least one special character (!@#$%^&*)";
+    return "";
+  };
+
+  // Function to handle password update
+  const handlePasswordUpdate = async () => {
+
+    // Validate password first
+    const error = validatePassword(newPassword);
+    if (error) {
+      Alert.alert('Error', error);
+      return;
+    }
+
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    // Update password
+    try {
+      setIsLoading(true);
+      await updatePassword(auth.currentUser, newPassword);
+      setNewPassword('');
+      setConfirmPassword('');
+      setIsEditingPassword(false);
+      Alert.alert('Success', 'Password updated successfully!');
+    } catch (error) {
+      console.error('Error updating password:', error);
+      Alert.alert('Error', 'Failed to update password. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Render the profile screen
   return (
-    <ScrollView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <Animated.ScrollView
+      style={[styles.container, { opacity: fadeAnim }]}
+      showsVerticalScrollIndicator={false}
+    >
+      <StatusBar barStyle="dark-content" />
 
-      {/* Profile section with picture and name */}
-      <SectionContainer title="">
-        <Image style={styles.profileImage} source={require('../assets/person2.jpg')} />
+      {/* Profile Header */}
+      <View style={styles.header}>
+        <View style={styles.profileImageContainer}>
+          <Image
+            style={styles.profileImage}
+            source={profilePicture ? { uri: profilePicture } : require('../assets/person2.jpg')}
+          />
+        </View>
         <Text style={styles.name}>{fullName}</Text>
-      </SectionContainer>
+        <Text style={styles.email}>{email}</Text>
+      </View>
 
-      {/* Personal information section with editable email and password */}
-      <SectionContainer title="Information">
+      {/* Personal Information Section */}
+      <SectionContainer title="Personal Information">
         <EditableField
           label="Email"
           value={isEditingEmail ? newEmail : email}
           isEditing={isEditingEmail}
           onEdit={() => {
-            //TODO: Implement email update functionality
+            if (isEditingEmail) {
+              handleEmailUpdate();
+            } else {
+              setNewEmail(email);
+              setIsEditingEmail(true);
+            }
           }}
-          onChangeText={setNewEmail}/>
+          onChangeText={setNewEmail}
+        />
 
-        <View style={{ margin: '3%' }} />
+        <View style={styles.divider} />
 
-        <EditableField
-          label="Password"
-          value={isEditingPassword ? newPassword : "*********"}
-          isEditing={isEditingPassword}
-          onEdit={() => {
-            // TODO: Implement password update functionality
-          }}
-          onChangeText={setNewPassword}
-          secureTextEntry={true} />
+        {isEditingPassword ? (
+          <>
+            <EditableField
+              label="New Password"
+              value={newPassword}
+              isEditing={true}
+              onEdit={() => { }}
+              onChangeText={setNewPassword}
+              secureTextEntry={true}
+            />
 
-        <View style={{ margin: '2%' }} />
+            <View style={styles.divider} />
 
-        <ContactCard icon={buildingIcon} text={"13C9"} />
-        <ContactCard icon={phoneIcon} text={"226-898-4470"} />
+            <EditableField
+              label="Confirm Password"
+              value={confirmPassword}
+              isEditing={true}
+              onEdit={() => { }}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={true}
+            />
 
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.cancelButton]}
+                onPress={() => {
+                  setIsEditingPassword(false);
+                  setNewPassword('');
+                  setConfirmPassword('');
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, styles.saveButton]}
+                onPress={handlePasswordUpdate}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <EditableField
+            label="Password"
+            value="*********"
+            isEditing={false}
+            onEdit={() => setIsEditingPassword(true)}
+            secureTextEntry={true}
+          />
+        )}
       </SectionContainer>
 
-      {/* Settings section with notification toggle */}
+      {/* Contact Information Section */}
+      <SectionContainer title="Contact Information">
+        <ContactCard icon={buildingIcon} text="13C9" />
+        <View style={styles.divider} />
+        <ContactCard icon={phoneIcon} text="226-898-4470" />
+      </SectionContainer>
+
+      {/* Settings Section */}
       <SectionContainer title="Settings">
         <View style={styles.settingRow}>
-          <Text style={{ fontSize: 16 }}>Notifications</Text>
+          <View style={styles.settingTextContainer}>
+            <Text style={styles.settingText}>Notifications</Text>
+            <Text style={styles.settingSubtext}>Receive updates about your account</Text>
+          </View>
           <Checkbox
             value={isNotificationsChecked}
-            onValueChange={handleNotificationToggle} />
+            onValueChange={handleNotificationToggle}
+            color={isNotificationsChecked ? primaryColor : undefined}
+            accessibilityLabel="ToggleNotifications"
+          />
         </View>
       </SectionContainer>
 
-      {/* Sign out section */}
-      <View style={styles.signOutSection}>
-        <PrimaryButton style={{ marginBottom: '10%'}} text="Sign Out" onPress={() => navigation.navigate("SignOut")} component={<Feather name="log-out" size={24} color="white" />} />
+      {/* Sign Out Button */}
+      <View style={styles.signOutContainer}>
+        <PrimaryButton
+          style={styles.signOutButton}
+          text="Sign Out"
+          onPress={() => navigation.navigate("SignOut")}
+          component={<Feather name="log-out" size={24} color="white" />}
+        />
       </View>
-    </ScrollView>
+
+      {isLoading && (
+        <View style={[styles.loadingOverlay, { backgroundColor: 'rgba(255, 255, 255, 0.5)' }]}>
+          <ActivityIndicator size="large" color={primaryColor} />
+        </View>
+      )}
+    </Animated.ScrollView>
   );
 }
 
 // Styles for the profile screen
 const styles = StyleSheet.create({
-  // Container styles
   container: {
     flex: 1,
-    padding: 15,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: backgroundColor,
   },
-  // Section container styles with shadow and elevation
+  header: {
+    alignItems: 'center',
+    paddingVertical: 30,
+    backgroundColor: 'white',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileImageContainer: {
+    marginBottom: 15,
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: primaryColor,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: textColor,
+    marginBottom: 5,
+  },
+  email: {
+    fontSize: 16,
+    color: '#666',
+  },
   sectionContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    marginHorizontal: 16,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: {
@@ -213,99 +412,133 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 4,
     elevation: 3,
   },
-  // Section title styles
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
+    fontWeight: '700',
+    color: textColor,
+    marginBottom: 20,
   },
-  // Section content styles
-  sectionContent: {
-    paddingTop: 8,
+  editableField: {
+    marginBottom: 15,
   },
-  // Setting row styles for notification toggle
+  inputLabel: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+    height: 50,
+    borderWidth: 1,
+    borderColor: borderColor,
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    color: textColor,
+    backgroundColor: 'white',
+  },
+  inputDisabled: {
+    backgroundColor: '#f8f9fa',
+  },
+  editButton: {
+    padding: 12,
+    marginLeft: 10,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+  },
+  editButtonActive: {
+    backgroundColor: '#e8f5e9',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: borderColor,
+    marginVertical: 15,
+  },
+  contactCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    marginRight: 15,
+    tintColor: primaryColor,
+  },
+  contactText: {
+    fontSize: 16,
+    color: textColor,
+  },
   settingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  // Profile image styles
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginTop: '-15%',
-    borderWidth: 1,
-    borderColor: '#1560BD',
-    alignSelf: 'center',
-    marginBottom: 10,
-    resizeMode: 'cover',
-  },
-  // Name text styles
-  name: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#333',
-    textAlign: 'center',
-  },
-  // Input label styles
-  inputLabel: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
-  },
-  // Icon styles
-  icon: {
-    width: 30,
-    height: 30,
-    margin: 10,
-  },
-  // Input field styles
-  input: {
-    height: 40,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingLeft: 10,
-    backgroundColor: '#fff',
-    fontSize: 16,
-    color: '#333',
+  settingTextContainer: {
     flex: 1,
+    marginRight: 15,
   },
-  // Disabled input styles
-  inputDisabled: {
-    backgroundColor: '#f5f5f5',
+  settingText: {
+    fontSize: 16,
+    color: textColor,
+    fontWeight: '500',
   },
-  // Input container styles
-  inputContainer: {
+  settingSubtext: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  buttonContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  actionButton: {
+    flex: 1,
+    padding: 15,
+    borderRadius: 12,
     alignItems: 'center',
+    marginHorizontal: 8,
   },
-  // Edit button styles with background and border radius
-  editButton: {
-    padding: 8,
-    marginLeft: 8,
-    backgroundColor: '#f3ebf5',
-    borderRadius: 8,
+  cancelButton: {
+    backgroundColor: '#f8f9fa',
   },
-  // Edit icon styles with tint color
-  editIcon: {
-    width: 24,
-    height: 24,
-    tintColor: '#3e1952',
+  saveButton: {
+    backgroundColor: primaryColor,
   },
-  // Profile card styles
-  contactCard: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginVertical: "3%",
-    backgroundColor: "#f3ebf5",
-    paddingHorizontal: 10,
-    borderRadius: 10,
+  cancelButtonText: {
+    color: textColor,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  signOutContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 30,
+  },
+  signOutButton: {
+    marginBottom: 20,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
 });
