@@ -135,7 +135,8 @@ export function Profile({ navigation }) {
     fetchDocumentByID(userDocRef)
       .then((data) => {
         setFullName(data.firstName + " " + data.lastName);
-        setProfilePicture(data.profilePicture);
+        // If profilePicture is a URL, use it directly, otherwise use the default image
+        setProfilePicture(data.profilePicture || require('../assets/person2.jpg'));
         setIsNotificationsChecked(data.notifications || false);
       })
       .catch((error) => {
@@ -200,7 +201,7 @@ export function Profile({ navigation }) {
         <View style={styles.profileImageContainer}>
           <Image
             style={styles.profileImage}
-            source={profilePicture ? { uri: profilePicture } : require('../assets/person2.jpg')}
+            source={typeof profilePicture === 'string' ? { uri: profilePicture } : profilePicture}
           />
         </View>
         <Text style={styles.name}>{fullName}</Text>
