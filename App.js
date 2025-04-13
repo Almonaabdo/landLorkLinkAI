@@ -32,7 +32,7 @@ import { Dashboard } from './screens/Dashboard';
 import ChatScreen from './screens/chat';
 
 const primaryColor = "#3e1952";
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator(); 
 const Stack = createStackNavigator();
 
 
