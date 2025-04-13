@@ -11,7 +11,7 @@
 
 // Import necessary React and React Native components for UI elements and functionality
 import React, { useState } from "react";
-import { View, Text, Image, StatusBar, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Animated, Pressable } from "react-native";
+import { View, Text, Image, StatusBar, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Animated } from "react-native";
 import { PrimaryButton } from "../components/Buttons.js";
 import { auth } from '../firebaseConfig.js';
 import { Checkbox } from 'expo-checkbox';
@@ -117,9 +117,7 @@ export function Profile({ navigation }) {
   const [isNotificationsChecked, setIsNotificationsChecked] = useState(false);
   const [fullName, setFullName] = useState("Full Name");
   const [profilePicture, setProfilePicture] = useState(null);
-  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
-  const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -148,37 +146,8 @@ export function Profile({ navigation }) {
   /**
    * Handles the notification preference toggle
    */
-  const handleNotificationToggle = (newState) => {
-    setIsNotificationsChecked(newState);
-  };
-
-  // Function to handle email update
-  const handleEmailUpdate = async () => {
-    if (!newEmail || newEmail === email) {
-      Alert.alert('Error', 'Please enter a new email address');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      await updateEmail(auth.currentUser, newEmail);
-
-      // Update Firestore
-      const userDocRef = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(userDocRef, {
-        email: newEmail
-      });
-
-      setEmail(newEmail);
-      setNewEmail('');
-      setIsEditingEmail(false);
-      Alert.alert('Success', 'Email updated successfully!');
-    } catch (error) {
-      console.error('Error updating email:', error);
-      Alert.alert('Error', 'Failed to update email. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleNotificationToggle = async () => {
+    //TODO: Implement notification toggle functionality
   };
 
   // Function to validate password
@@ -192,21 +161,17 @@ export function Profile({ navigation }) {
 
   // Function to handle password update
   const handlePasswordUpdate = async () => {
-
-    // Validate password first
     const error = validatePassword(newPassword);
     if (error) {
       Alert.alert('Error', error);
       return;
     }
 
-    // Check if passwords match
     if (newPassword !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
 
-    // Update password
     try {
       setIsLoading(true);
       await updatePassword(auth.currentUser, newPassword);
@@ -244,20 +209,16 @@ export function Profile({ navigation }) {
 
       {/* Personal Information Section */}
       <SectionContainer title="Personal Information">
-        <EditableField
-          label="Email"
-          value={isEditingEmail ? newEmail : email}
-          isEditing={isEditingEmail}
-          onEdit={() => {
-            if (isEditingEmail) {
-              handleEmailUpdate();
-            } else {
-              setNewEmail(email);
-              setIsEditingEmail(true);
-            }
-          }}
-          onChangeText={setNewEmail}
-        />
+        <View style={styles.editableField}>
+          <Text style={styles.inputLabel}>Email</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, styles.inputDisabled]}
+              value={email}
+              editable={false}
+            />
+          </View>
+        </View>
 
         <View style={styles.divider} />
 
@@ -334,7 +295,6 @@ export function Profile({ navigation }) {
             value={isNotificationsChecked}
             onValueChange={handleNotificationToggle}
             color={isNotificationsChecked ? primaryColor : undefined}
-            accessibilityLabel="ToggleNotifications"
           />
         </View>
       </SectionContainer>
