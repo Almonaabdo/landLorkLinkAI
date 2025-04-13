@@ -1,198 +1,241 @@
 /*
 * FILE        : Contact.js
-* 
-* Description : The Contact Screen is for displaying all Company related contact ways such as social media and office locations
-* 
+* Description : Premium-feel Contact Screen with refined UI and professional layout.
 * Author      : Abdurrahman Almouna, Yafet Tekleab
-* Date        : October 31, 2024
-* Version     : 1.0
-* 
+* Updated     : April 13, 2025
 */
 
-
-import { React } from "react";
-import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet, Linking } from "react-native";
+import React, { useState } from "react";
+import {View,Text,Image, TouchableOpacity, StatusBar, StyleSheet, Linking, ScrollView} from "react-native";
 import { PrimaryButton } from "../components/Buttons";
+import MapView from "react-native-maps";
 
 // icons
-const emailIcon = require(".././assets/emailIcon.png");
-const callIcon = require(".././assets/callIcon.png");
-const mapsIcon = require(".././assets/mapsIcon.png");
-const personImage = require(".././assets/person.jpg");
-const instagramIcon = require(".././assets/instagramIcon.png");
-const facebookIcon = require(".././assets/facebookIcon.png");
-const googleIcon = require(".././assets/googleIcon.png");
+const emailIcon = require("../assets/emailIcon.png");
+const callIcon = require("../assets/callIcon.png");
+const mapsIcon = require("../assets/mapsIcon.png");
+const personImage = require("../assets/person.jpg");
+const instagramIcon = require("../assets/instagramIcon.png");
+const facebookIcon = require("../assets/facebookIcon.png");
+const googleIcon = require("../assets/googleIcon.png");
 
-// Divider component
-const Divider = () => (
-  <View style={styles.divider} />
-);
+// Google Maps Handler
+const openGoogleMaps = (address) => {
+  const formatted = encodeURIComponent(address);
+  Linking.openURL(
+    `https://www.google.com/maps/search/?api=1&query=${formatted}`
+  );
+};
 
-export function Contact({ navigation }) {
-  const leasingOfficeAddress = "150 University Ave W. - Unit 4, Waterloo";
-  const propertyManagementOffice = "The HUB - 130 Columbia St W, Waterloo";
+export const Contact = ({ navigation }) => {
+  const leasingOfficeAddress = "Accommod8u 150 University Ave W. - Unit 4, Waterloo";
+  const propertyManagementOffice = "The HUB 130 Columbia St W, Waterloo";
+
+  const [showManagmentMap, setShowManagmentMap] = useState(false);
+  const [showLeasingMap, setShowLeasingMap] = useState(false);
+
+  const [leasingOfficeMap, setLeasingOfficeMap] = useState({
+    latitude: 43.4778939,
+    longitude: -80.5374425,
+    latitudeDelta: 0.0007,
+    longitudeDelta: 0.0007,
+  });
+  const [propertyManagementOfficeMap, setPropertyManagmentOfficeMap] = useState({
+    latitude: 43.478583,
+    longitude: -80.537472,
+    latitudeDelta: 0.0007,
+    longitudeDelta: 0.0007,
+  });
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={{flex:1, padding:12}}
+      contentContainerStyle={{ paddingBottom: 20 }}>
       <StatusBar barStyle="light-content" />
 
-
-      {/*Contact Person Section */}
-      <View style={styles.header}>
-        <Image source={personImage} style={styles.profileImage} />
-        <View style={styles.headerTextContainer}>
-          <Text style={styles.headerName}>Paul S</Text>
-          <Text style={styles.headerRole}>Building Manager</Text>
-          <Text style={styles.headerName}>226-898-0000</Text>
+      {/* Header Contact Person */}
+      <View style={styles.card}>
+        <View style={styles.header}>
+          <Image source={personImage} style={styles.profileImage} />
+          <View>
+            <Text style={styles.name}>Paul S</Text>
+            <Text style={styles.role}>Building Manager</Text>
+            <Text style={styles.phone}>226-898-0000</Text>
+          </View>
         </View>
       </View>
-      
-      <View style={{margin:'5%'}}/>
 
+      {/* Management Office */}
+      <ContactSection
+        title="Management Office"
+        hours="Mon - Fri: 10am - 5pm"
+        showMap={showManagmentMap}
+        toggleMap={() => setShowManagmentMap((prev) => !prev)}
+        mapRegion={leasingOfficeMap}
+        address= {propertyManagementOffice}
+        links={[
+          {
+            icon: emailIcon,
+            text: "maintenance@accommod8u.com",
+            action: () =>
+              Linking.openURL(
+                "mailto:maintenance@accommod8u.com?subject=Maintenance Request&body=Hello, I need assistance with..."
+              ),
+          },
+          {
+            icon: mapsIcon,
+            text: propertyManagementOffice,
+          },
+        ]}
+      />
 
-      {/*MANAGMENT OFFICE */}
-      <Section title="Management Office" hours="Monday - Friday: 10am - 5pm">
-        <ContactLink
-          icon={emailIcon}
-          text="maintenance@accommod8u.com"
-          onPress={() => Linking.openURL('mailto:support@example.com?subject=Property Inspection Request&body=Hello Accommod8u, hope this email finds you well')}/>
-        
-        <Divider />
+      {/* Leasing Office */}
+      <ContactSection
+        title="Leasing Office"
+        hours="Mon - Fri: 10am - 6pm"
+        showMap={showLeasingMap}
+        toggleMap={() => setShowLeasingMap((prev) => !prev)}
+        mapRegion={leasingOfficeMap}
+        address= {leasingOfficeAddress}
+        links={[
+          {
+            icon: callIcon,
+            text: "+1 (226) 898-0000",
+            action: () => Linking.openURL(`tel:2268980000`),
+          },
+          {
+            icon: emailIcon,
+            text: "leasing@accommod8u.com",
+            action: () =>
+              Linking.openURL(
+                "mailto:leasing@accommod8u.com?subject=Leasing Inquiry&body=Hello, I’m interested in..."
+              ),
+          },
+          {
+            icon: mapsIcon,
+            text: leasingOfficeAddress,
+          },
+        ]}
+      />
 
-        <ContactLink
-          icon={mapsIcon}
-          text="The HUB - 130 Columbia St W, Waterloo"
-          onPress={() => openGoogleMaps(propertyManagementOffice)}/>
-      </Section>
+      {/* Website redirect Button */}
+      <PrimaryButton text="Accommod8u.com" onPress={() => { Linking.openURL("https://www.accommod8u.com/");}} style={{marginVertical:20}}/>
 
-      {/* SPACING */}
-      <View style={{marginVertical:'7%'}}></View>
+      {/* Social Media */}
+      <View style={styles.socialContainer}>
+        <TouchableOpacity>
+          <Image source={facebookIcon} style={styles.socialIcon} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image source={instagramIcon} style={styles.socialIcon} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image source={googleIcon} style={styles.socialIcon} />
+        </TouchableOpacity>
 
-      {/*LEASING OFFICE */}
-      <Section title="Leasing Office" hours="Monday - Friday: 10am - 6pm">
-        <ContactLink
-          icon={callIcon}
-          text="+1 (226) 898-0000"
-          onPress={() => Linking.openURL(`tel:2268980000`)}/>
-        <Divider />
-
-        <ContactLink
-          icon={emailIcon}
-          text="leasing@accommod8u.com"
-          onPress={() => Linking.openURL('mailto:support@example.com?subject=Property Inspection Request&body=Hello Accommod8u, hope this email finds you well')}/>
-        <Divider />
-
-        <ContactLink
-          icon={mapsIcon}
-          text="150 University Ave W. - Unit 4, Waterloo"
-          onPress={() => openGoogleMaps(leasingOfficeAddress)}/>
-      </Section>
-
-      {/* SPACING */}
-      <View style={{marginVertical:'5%'}}/>
-      
-
-      <PrimaryButton text={"Accommd8u.com"} onPress={()=>{Linking.openURL('https://www.accommod8u.com/')}} />
-
-
-      {/*SOCIAL MEDIA ICONS*/}
-      <View style={{ height: '3%', flexDirection: 'row', marginVertical: '10%', alignSelf: 'center', justifyContent: 'space-between' }}>
-        <Image source={facebookIcon} style={{ width: '10%', height: '185%', marginRight: '10%' }} />
-        <Image source={instagramIcon} style={{ width: '10%', height: '185%', marginRight: '10%' }} />
-        <Image source={googleIcon} style={{ width: '10%', height: '185%' }} />
       </View>
-
-    </View>
+    </ScrollView>
   );
-}
+};
 
-// Contact link component
-const ContactLink = ({ icon, text, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.contactLink}>
-    <Image source={icon} style={styles.linkIcon} />
-    <Text style={styles.linkText}>{text}</Text>
-  </TouchableOpacity>
-);
-
-
-// Section component
-const Section = ({ title, hours, children }) => (
-  <View>
-    <Text style={[styles.sectionTitle]}>{title}</Text>
+const ContactSection = ({ title, hours, links, showMap, toggleMap, mapRegion, address }) => (
+  <View style={styles.card}>
+    <Text style={styles.sectionTitle}>{title}</Text>
     <Text style={styles.sectionHours}>{hours}</Text>
-    {children}
+    {links.map((link, index) =>
+     {
+      const isMapLink = link.icon === mapsIcon;
+      return (
+        <TouchableOpacity key={index}style={styles.linkRow} onPress={isMapLink ? toggleMap : link.action} activeOpacity={0.7}>
+          <Image source={link.icon} style={styles.linkIcon} />
+          <Text style={styles.linkText}>{link.text}</Text>
+        </TouchableOpacity>
+      );
+    })}
+
+    {showMap && (
+      <TouchableOpacity onPress={() => openGoogleMaps(address)}>
+        <MapView style={styles.map} initialRegion={mapRegion} showsUserLocation/>
+      </TouchableOpacity>
+    )}
   </View>
 );
 
-
-// Function to open Google Maps
-const openGoogleMaps = (address) => 
-{
-  const formattedAddress = encodeURIComponent(address);
-  const url = `https://www.google.com/maps/search/?api=1&query=${formattedAddress}`;
-  Linking.openURL(url);
-};
-
-
 // Styles
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-    padding: '3%',
-    paddingVertical: '5%'
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 15,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   profileImage: {
-    width: '25%',
-    height: "135%",
-    borderRadius: 99,
-    marginRight: '5%',
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    marginRight: 16,
   },
-  headerTextContainer: {
-    flexDirection: 'column',
+  name: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#222",
   },
-  headerName: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  role: {
+    color: "#666",
   },
-  headerRole: {
-    fontSize: 18,
-    color: '#666',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
+  phone: {
+    fontSize: 16,
+    color: "#1E88E5",
   },
   sectionTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    width:'300',
-    color: '#333',
-    backgroundColor: '#f0eff5',
-    padding: "2%",
-    width:"100%"
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1C1C1E",
+    marginBottom: 4,
   },
   sectionHours: {
-    fontSize: 16,
-    color: '#888',
-    marginVertical: "1%",
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 12,
   },
-  contactLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: '3%',
+  linkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
   },
   linkIcon: {
-    width: '6%',
-    height: '150%',
-    marginRight: '3%',
+    width: 20,
+    height: 20,
+    marginRight: 10,
   },
   linkText: {
-    fontSize: 14,
-    color: '#0D47A1',
+    color: "#0D47A1",
+    flexShrink: 1,
+  },
+  socialContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 24,
+    alignItems:'center'
+  },
+  socialIcon: {
+    width: 32,
+    height: 32,
+    resizeMode: "contain",
+  },
+  map: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginTop: 12,
   },
 });

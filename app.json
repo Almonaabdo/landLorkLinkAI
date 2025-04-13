@@ -28,7 +28,11 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
-    ]
+      "expo-font",
+      ["expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Allow Landlordlink to use your location."
+      }
+    ]]
   }
 }
