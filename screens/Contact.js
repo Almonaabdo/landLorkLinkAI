@@ -6,7 +6,7 @@
 */
 
 import React, { useState } from "react";
-import {View,Text,Image, TouchableOpacity, StatusBar, StyleSheet, Linking, ScrollView} from "react-native";
+import {View,Text,Image,Platform, TouchableOpacity, StatusBar, StyleSheet, Linking, ScrollView} from "react-native";
 import { PrimaryButton } from "../components/Buttons";
 import MapView from "react-native-maps";
 
@@ -20,9 +20,14 @@ const facebookIcon = require("../assets/facebookIcon.png");
 const googleIcon = require("../assets/googleIcon.png");
 
 // Google Maps Handler
-const openGoogleMaps = (address) => {
+const openGoogleMaps = (address, appleMapsID) => {
   const formatted = encodeURIComponent(address);
+
   Linking.openURL(
+    Platform.OS === 'ios'?
+    // it's set up this way as apple maps web is still in beta testing and no API documentation yet :)
+    appleMapsID
+    :
     `https://www.google.com/maps/search/?api=1&query=${formatted}`
   );
 };
@@ -65,13 +70,14 @@ export const Contact = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Management Office */}
+      {/* Management Office (The Hub) */}
       <ContactSection
         title="Management Office"
         hours="Mon - Fri: 10am - 5pm"
         showMap={showManagmentMap}
         toggleMap={() => setShowManagmentMap((prev) => !prev)}
         mapRegion={leasingOfficeMap}
+        appleMapsID="https://maps.apple.com/place?place-id=ID916AE3839E5B622&address=130+Columbia+St+W%2C+Waterloo+ON+N2L+0G6%2C+Canada&coordinate=43.4780263%2C-80.537615&name=The+Hub&_provider=9902"
         address= {propertyManagementOffice}
         links={[
           {
@@ -97,6 +103,7 @@ export const Contact = ({ navigation }) => {
         toggleMap={() => setShowLeasingMap((prev) => !prev)}
         mapRegion={leasingOfficeMap}
         address= {leasingOfficeAddress}
+        appleMapsID="https://maps.apple.com/place?place-id=IBBDBBA2BFE3F9877&address=4-150+University+Ave+W%2C+Waterloo+ON+N2L+6J3%2C+Canada&coordinate=43.4723948%2C-80.5360562&name=Accommod8u&_provider=9902"
         links={[
           {
             icon: callIcon,
@@ -108,7 +115,7 @@ export const Contact = ({ navigation }) => {
             text: "leasing@accommod8u.com",
             action: () =>
               Linking.openURL(
-                "mailto:leasing@accommod8u.com?subject=Leasing Inquiry&body=Hello, I’m interested in..."
+                "mailto:leasing@accommod8u.com?subject=Leasing Inquiry&body=Hello, I'm interested in..."
               ),
           },
           {
@@ -138,7 +145,7 @@ export const Contact = ({ navigation }) => {
   );
 };
 
-const ContactSection = ({ title, hours, links, showMap, toggleMap, mapRegion, address }) => (
+const ContactSection = ({ title, hours, links, showMap, toggleMap, mapRegion, address, appleMapsID }) => (
   <View style={styles.card}>
     <Text style={styles.sectionTitle}>{title}</Text>
     <Text style={styles.sectionHours}>{hours}</Text>
@@ -154,7 +161,7 @@ const ContactSection = ({ title, hours, links, showMap, toggleMap, mapRegion, ad
     })}
 
     {showMap && (
-      <TouchableOpacity onPress={() => openGoogleMaps(address)}>
+      <TouchableOpacity onPress={() => openGoogleMaps(address, appleMapsID)}>
         <MapView style={styles.map} initialRegion={mapRegion} showsUserLocation/>
       </TouchableOpacity>
     )}
