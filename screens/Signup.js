@@ -18,7 +18,7 @@ import { PrimaryButton } from "../components/Buttons";
 import Feather from '@expo/vector-icons/Feather';
 // Logo
 const logoImg = require(".././assets/Accommod8u.jpg");
-const defaultProfilePicture = require(".././assets/person2.jpg");
+const defaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/accommod8u-4a0a4.appspot.com/o/defaultProfilePicture.jpg?alt=media";
 
 // global variables
 const emailInUseError = -3;
