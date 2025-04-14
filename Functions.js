@@ -473,7 +473,7 @@ async function getLeaseDetails(tenantApartmentId) {
 
 // Security Rules Implementation
 /*
-1. Firestore Rules 
+1. Firestore Rules
    - Apartments collection
      - Read: authenticated users
      - Create: landlords and admins

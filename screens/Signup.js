@@ -10,12 +10,15 @@
 */
 
 import React, { useState } from "react";
-import { Text, Image, TouchableOpacity, StatusBar, ActivityIndicator, TextInput, KeyboardAvoidingView, ScrollView, StyleSheet, Platform } from "react-native";
-import { auth, db } from '../firebaseConfig';
+import { Text, Image, TouchableOpacity, StatusBar, ActivityIndicator, TextInput, KeyboardAvoidingView, ScrollView, StyleSheet, Platform, Alert, View } from "react-native";
+import { auth, db, storage } from '../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import { ref, getDownloadURL, listAll } from 'firebase/storage';
 import { PrimaryButton } from "../components/Buttons";
 import Feather from '@expo/vector-icons/Feather';
+import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref as storageRef, uploadBytes } from 'firebase/storage';
 // Logo
 const logoImg = require(".././assets/Accommod8u.jpg");
 const defaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/accommod8u-4a0a4.appspot.com/o/defaultProfilePicture.jpg?alt=media";
@@ -36,21 +39,41 @@ export function SignUpScreen({ navigation }) {
   const [viewError, setViewError] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  // function to get profile picture URL from storage
+  const getProfilePictureUrl = async (firstName, lastName) => {
+    try {
+      const imageRef = ref(storage, `gs://accommod8u-dc7cc.firebasestorage.app/ProfilePictures/${firstName.toLowerCase()}-${lastName.toLowerCase()}.jpeg`);
+      const url = await getDownloadURL(imageRef);
+      console.log('Profile picture URL:', url);
+      return url;
+    } catch (error) {
+      console.log('Unexpected error in profile picture retrieval:', error);
+      return defaultProfilePicture;
+    }
+  };
+
   // function to submit signup request on the database
   const handleSignUp = async () => {
     if (!isFormValid()) {
+      console.log('Form validation failed');
       return;
     }
 
+    console.log('Starting signup process...');
     setIsLoading(true);
     setViewError(0);
 
     try {
-      // Create user in Firebase Auth
+      console.log('Creating user in Firebase Auth...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log('User created in Firebase Auth:', user.uid);
 
-      // Create user document in Firestore
+      console.log('Attempting to get profile picture URL...');
+      const profilePictureUrl = await getProfilePictureUrl(firstName, lastName);
+      console.log('Profile picture URL retrieved:', profilePictureUrl);
+
+      console.log('Creating user document in Firestore...');
       const newUser = {
         firstName: firstName,
         lastName: lastName,
@@ -58,29 +81,39 @@ export function SignUpScreen({ navigation }) {
         apartmentID: null,
         createdAt: new Date(),
         lastLogin: new Date(),
-        role: 'tenant', // Default role
+        role: 'tenant',
         status: 'active',
         uid: user.uid,
-        profilePicture: defaultProfilePicture
+        profilePicture: profilePictureUrl
       };
+      console.log('User document data prepared:', newUser);
 
-      // Store user data in Firestore using the auth UID as document ID
       await setDoc(doc(db, "users", user.uid), newUser);
+      console.log('User document created in Firestore');
 
-      // Navigate to home screen
+      console.log('Signup process completed successfully');
       navigation.replace("Back", { isUserLoggedIn: true });
     }
     catch (error) {
-      console.error("Signup error:", error);
+      console.error("Signup error occurred:", error);
+      console.log('Error details:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
 
       if (error.code === "auth/email-already-in-use") {
+        console.log('Email already in use error');
         setViewError(emailInUseError);
       } else if (error.code === "auth/network-request-failed") {
+        console.log('Network error');
         setViewError(networkError);
       } else {
+        console.log('General error');
         setViewError(invalidInformationError);
       }
     } finally {
+      console.log('Signup process completed');
       setIsLoading(false);
     }
   };
@@ -274,5 +307,24 @@ const styles = StyleSheet.create({
     color: '#3e1952',
     alignSelf: 'center',
     marginTop: '2%'
+  },
+  profilePictureContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  profilePicture: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 10,
+  },
+  changePictureButton: {
+    backgroundColor: '#3e1952',
+    padding: 10,
+    borderRadius: 8,
+  },
+  changePictureText: {
+    color: 'white',
+    textAlign: 'center',
   },
 });
