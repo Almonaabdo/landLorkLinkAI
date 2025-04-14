@@ -10,7 +10,7 @@
 */
 
 import { db } from './firebaseConfig';
-import { collection, addDoc, getDoc, setDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDoc, setDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp, query, where } from 'firebase/firestore';
 
 /*
 * APARTMENT AND TENANT MANAGEMENT IMPLEMENTATION GUIDE
@@ -280,64 +280,243 @@ export const updateStatus = async (requestId, newStatus) => {
 // Apartment Management Functions
 
 // Create a new apartment
-async function createApartment(apartmentData) {
-  // 1. Validate apartment data
-  // 2. Check if apartment with same unit number exists
-  // 3. Create apartment document with initial status 'available'
-  // 4. Set createdAt and updatedAt timestamps
-  // 5. Return the new apartment ID
-}
+export const createApartment = async (apartmentData) => {
+  try {
+    // Validate required fields
+    if (!apartmentData.unitNumber || !apartmentData.rooms ||
+      !apartmentData.monthlyRent || !apartmentData.maxOccupants) {
+      throw new Error('Missing required fields: unitNumber, rooms, monthlyRent, maxOccupants');
+    }
+
+    // Validate numeric fields
+    if (typeof apartmentData.rooms !== 'number' || apartmentData.rooms <= 0 ||
+      typeof apartmentData.monthlyRent !== 'number' || apartmentData.monthlyRent <= 0 ||
+      typeof apartmentData.maxOccupants !== 'number' || apartmentData.maxOccupants <= 0) {
+      throw new Error('Invalid numeric values: rooms, monthlyRent, and maxOccupants must be positive numbers');
+    }
+
+    // Check if apartment with same unit number exists
+    const apartmentsRef = collection(db, 'apartments');
+    const querySnapshot = await getDocs(apartmentsRef);
+    const existingApartment = querySnapshot.docs.find(doc =>
+      doc.data().unitNumber === apartmentData.unitNumber
+    );
+
+    if (existingApartment) {
+      throw new Error('Apartment with this unit number already exists');
+    }
+
+    // Create apartment document with initial status
+    const newApartment = {
+      ...apartmentData,
+      status: 'available',
+      currentOccupants: 0,
+      createdAt: Timestamp.fromDate(new Date()),
+      updatedAt: Timestamp.fromDate(new Date())
+    };
+
+    const docRef = await addDoc(collection(db, 'apartments'), newApartment);
+    return { id: docRef.id, ...newApartment };
+  } catch (error) {
+    console.error('Error creating apartment:', error);
+    throw error;
+  }
+};
 
 // Update apartment details
-async function updateApartment(apartmentId, updateData) {
-  // 1. Validate apartment exists
-  // 2. Validate update data
-  // 3. Update apartment document
-  // 4. Update updatedAt timestamp
-  // 5. Return success status
-}
+export const updateApartment = async (apartmentId, updateData) => {
+  try {
+    // Validate apartment exists
+    const apartmentRef = doc(db, 'apartments', apartmentId);
+    const apartmentDoc = await getDoc(apartmentRef);
+
+    if (!apartmentDoc.exists()) {
+      throw new Error('Apartment not found');
+    }
+
+    // Validate numeric fields if they are being updated
+    if (updateData.floor && (typeof updateData.floor !== 'number' || updateData.floor <= 0)) {
+      throw new Error('Invalid floor number');
+    }
+    if (updateData.rooms && (typeof updateData.rooms !== 'number' || updateData.rooms <= 0)) {
+      throw new Error('Invalid number of rooms');
+    }
+    if (updateData.monthlyRent && (typeof updateData.monthlyRent !== 'number' || updateData.monthlyRent <= 0)) {
+      throw new Error('Invalid monthly rent');
+    }
+    if (updateData.maxOccupants && (typeof updateData.maxOccupants !== 'number' || updateData.maxOccupants <= 0)) {
+      throw new Error('Invalid maximum occupants');
+    }
+
+    // Check if unit number is being changed and if it already exists
+    if (updateData.unitNumber) {
+      const apartmentsRef = collection(db, 'apartments');
+      const querySnapshot = await getDocs(apartmentsRef);
+      const existingApartment = querySnapshot.docs.find(doc =>
+        doc.id !== apartmentId &&
+        doc.data().unitNumber === updateData.unitNumber
+      );
+
+      if (existingApartment) {
+        throw new Error('Apartment with this unit number already exists');
+      }
+    }
+
+    // Update apartment document
+    const updatedData = {
+      ...updateData,
+      updatedAt: Timestamp.fromDate(new Date())
+    };
+
+    await updateDoc(apartmentRef, updatedData);
+    return { id: apartmentId, ...updatedData };
+  } catch (error) {
+    console.error('Error updating apartment:', error);
+    throw error;
+  }
+};
 
 // Delete an apartment
-async function deleteApartment(apartmentId) {
-  // 1. Check if apartment exists
-  // 2. Check if apartment has active tenants
-  // 3. Delete apartment document
-  // 4. Return success status
-}
+export const deleteApartment = async (apartmentId) => {
+  try {
+    // Check if apartment exists
+    const apartmentRef = doc(db, 'apartments', apartmentId);
+    const apartmentDoc = await getDoc(apartmentRef);
 
-// Get apartment details
-async function getApartment(apartmentId) {
-  // 1. Fetch apartment document
-  // 2. Include current tenant count
-  // 3. Include current status
-  // 4. Return apartment data
-}
+    if (!apartmentDoc.exists()) { 
+      throw new Error('Apartment not found');
+    }
+
+    // Check if apartment has active tenants
+    const tenantApartmentsRef = collection(db, 'tenantApartments');
+    const querySnapshot = await getDocs(tenantApartmentsRef);
+    const activeTenants = querySnapshot.docs.filter(doc =>
+      doc.data().apartmentId === apartmentId &&
+      doc.data().status === 'active'
+    );
+
+    if (activeTenants.length > 0) { // Check if apartment has active tenants
+      throw new Error('Cannot delete apartment with active tenants');
+    }
+
+    // Delete apartment document
+    await deleteDoc(apartmentRef);
+    return { success: true, message: 'Apartment deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting apartment:', error);
+    throw error;
+  }
+};
 
 // Get all apartments
-async function getAllApartments() {
-  // 1. Fetch all apartment documents
-  // 2. Include current tenant count for each
-  // 3. Sort by building and unit number
-  // 4. Return array of apartments
-}
+export const getAllApartments = async () => {
+  try {
+    const apartmentsRef = collection(db, 'apartments'); // Get all apartments   
+    const querySnapshot = await getDocs(apartmentsRef); // Execute the query
+    const apartments = querySnapshot.docs.map(doc => ({ // Map through all apartment documents
+      id: doc.id,
+      ...doc.data()
+    }));
+    return apartments; // Return the apartments
+  } catch (error) {
+    console.error('Error fetching apartments:', error);
+    throw error;
+  }
+};
 
 // Get available apartments
-async function getAvailableApartments() {
-  // 1. Query apartments where status is 'available'
-  // 2. Include relevant details
-  // 3. Sort by building and unit number
-  // 4. Return array of available apartments
-}
+export const getAvailableApartments = async () => {
+  try {
+    const apartmentsRef = collection(db, 'apartments'); // Get all apartments
+    const q = query(apartmentsRef, where('currentOccupants', '<', 3)); // Query to get all available apartments
+    const querySnapshot = await getDocs(q); // Execute the query
+    const apartments = querySnapshot.docs.map(doc => ({ // Map through all apartment documents
+      id: doc.id,
+      ...doc.data()
+    }));
+    return apartments; // Return the available apartments
+  } catch (error) {
+    console.error('Error fetching available apartments:', error);
+    throw error;
+  }
+};
 
 // Tenant Assignment Functions
 
 // Assign tenant to apartment
-async function assignTenant(userId, apartmentId, leaseData) {
-  // 1. Check apartment availability
-  // 2. Create tenant-apartment relationship
-  // 3. Update apartment status
-  // 4. Update user reference
-}
+export const assignTenant = async (userId, apartmentId, leaseData) => {
+  try {
+    // Check if apartment exists
+    const apartmentRef = doc(db, 'apartments', apartmentId);
+    const apartmentDoc = await getDoc(apartmentRef);
+
+    if (!apartmentDoc.exists()) {
+      throw new Error('Apartment not found');
+    }
+
+    const apartment = apartmentDoc.data(); // Get the apartment data
+
+    // Check if apartment has less than 3 occupants
+    if (apartment.currentOccupants >= 3) {
+      throw new Error('Apartment is at maximum capacity (3 occupants)');
+    }
+
+    // Check if user exists
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      throw new Error('User not found');
+    }
+
+    // Check if user already has an active apartment
+    const tenantApartmentsRef = collection(db, 'tenantApartments'); // Get all tenant apartments
+    const userQuery = query(tenantApartmentsRef, // Query to get all active tenants in an apartment
+      where('userId', '==', userId), // Filter by user ID
+      where('status', '==', 'active') // Filter by active status
+    );
+    const userSnapshot = await getDocs(userQuery); // Execute the query
+
+    if (!userSnapshot.empty) {
+      throw new Error('User already has an active apartment');
+    }
+
+    // Create tenant-apartment relationship
+    const tenantApartmentData = {
+      userId,
+      apartmentId,
+      status: 'active',
+      role: 'primary',
+      leaseStartDate: Timestamp.fromDate(new Date(leaseData.startDate)),
+      leaseEndDate: Timestamp.fromDate(new Date(leaseData.endDate)),
+      monthlyRent: apartment.monthlyRent,
+      createdAt: Timestamp.fromDate(new Date()),
+      updatedAt: Timestamp.fromDate(new Date())
+    };
+
+    const tenantApartmentRef = await addDoc(collection(db, 'tenantApartments'), tenantApartmentData); // Create the tenant-apartment relationship
+
+    // Update apartment occupant count
+    await updateDoc(apartmentRef, {
+      currentOccupants: apartment.currentOccupants + 1,
+      updatedAt: Timestamp.fromDate(new Date())
+    });
+
+    // Update user's apartment reference
+    await updateDoc(userRef, {
+      apartmentId,
+      updatedAt: Timestamp.fromDate(new Date())
+    });
+
+    return { // Return the tenant-apartment relationship
+      id: tenantApartmentRef.id,
+      ...tenantApartmentData
+    };
+  } catch (error) {
+    console.error('Error assigning tenant:', error);
+    throw error;
+  }
+};
 
 // Remove tenant from apartment
 async function removeTenant(userId, apartmentId) {
@@ -347,12 +526,32 @@ async function removeTenant(userId, apartmentId) {
 }
 
 // Get all tenants in an apartment
-async function getApartmentTenants(apartmentId) {
-  // 1. Query active tenant-apartment relationships
-  // 2. Fetch user details for each tenant
-  // 3. Include lease information
-  // 4. Return array of tenant objects
-}
+export const getApartmentTenants = async (apartmentId) => {
+  try {
+    const tenantApartmentsRef = collection(db, 'tenantApartments'); // Get all tenant apartments
+    const q = query(tenantApartmentsRef, // Query to get all active tenants in an apartment
+      where('apartmentId', '==', apartmentId), // Filter by apartment ID
+      where('status', '==', 'active') // Filter by active status
+    );
+    const querySnapshot = await getDocs(q); // Execute the query
+
+    const tenants = await Promise.all(querySnapshot.docs.map(async (doc) => { // Map through all tenant documents
+      const tenantData = doc.data(); // Get the tenant data
+      const userRef = doc(db, 'users', tenantData.userId); // Get the user reference
+      const userDoc = await getDoc(userRef); // Get the user document
+      return { // Return the tenant data
+        id: doc.id,
+        ...tenantData,
+        user: userDoc.exists() ? userDoc.data() : null
+      };
+    }));
+
+    return tenants;
+  } catch (error) {
+    console.error('Error fetching apartment tenants:', error);
+    throw error;
+  }
+};
 
 // Get tenant's current apartment
 async function getTenantApartment(userId) {
@@ -495,69 +694,18 @@ async function getLeaseDetails(tenantApartmentId) {
    - Handle unauthorized access errors
 */
 
-// Testing Implementation
-/*
-1. Unit Tests
-   - Database functions
-     - Create apartment
-     - Update apartment
-     - Delete apartment
-     - Assign tenant
-     - Remove tenant
-   - Validation functions
-     - Data validation
-     - Role validation
-     - Date validation
-
-2. Integration Tests
-   - Tenant assignment flow
-   - Lease management flow
-   - Apartment management flow
-
-3. UI Tests
-   - Screen navigation
-   - Form validation
-   - Error handling
-   - Loading states
-*/
-
-// Error Handling Implementation
-/*
-1. Database Errors
-   - Handle connection issues
-   - Handle permission errors
-   - Handle validation errors
-   - Handle concurrent updates
-
-2. UI Errors
-   - Show error messages
-   - Handle loading states
-   - Handle network errors
-   - Handle validation errors
-
-3. Business Logic Errors
-   - Handle invalid operations
-   - Handle conflicting states
-   - Handle edge cases
-*/
-
-// Documentation
-/*
-1. API Documentation
-   - Function signatures
-   - Parameter descriptions
-   - Return values
-   - Error cases
-
-2. UI Documentation
-   - Screen layouts
-   - Component hierarchy
-   - State management
-   - User flows
-
-3. Database Documentation
-   - Collection structure
-   - Field descriptions
-   - Relationships
-   - Indexes
-*/
+// Get all users
+export const getAllUsers = async () => {
+  try {
+    const usersRef = collection(db, 'users');
+    const querySnapshot = await getDocs(usersRef);
+    const users = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    return users;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+};
