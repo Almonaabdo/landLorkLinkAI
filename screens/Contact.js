@@ -6,9 +6,10 @@
 */
 
 import React, { useState } from "react";
-import {View,Text,Image,Platform, TouchableOpacity, StatusBar, StyleSheet, Linking, ScrollView} from "react-native";
+import { View, Text, Dimensions, Image, Platform, TouchableOpacity, StatusBar, StyleSheet, Linking, ScrollView } from "react-native";
 import { PrimaryButton } from "../components/Buttons";
 import MapView from "react-native-maps";
+import Feather from '@expo/vector-icons/Feather';
 
 // icons
 const emailIcon = require("../assets/emailIcon.png");
@@ -24,11 +25,11 @@ const openGoogleMaps = (address, appleMapsID) => {
   const formatted = encodeURIComponent(address);
 
   Linking.openURL(
-    Platform.OS === 'ios'?
-    // it's set up this way as apple maps web is still in beta testing and no API documentation yet :)
-    appleMapsID
-    :
-    `https://www.google.com/maps/search/?api=1&query=${formatted}`
+    Platform.OS === 'ios' ?
+      // it's set up this way as apple maps web is still in beta testing and no API documentation yet :)
+      appleMapsID
+      :
+      `https://www.google.com/maps/search/?api=1&query=${formatted}`
   );
 };
 
@@ -38,7 +39,10 @@ export const Contact = ({ navigation }) => {
 
   const [showManagmentMap, setShowManagmentMap] = useState(false);
   const [showLeasingMap, setShowLeasingMap] = useState(false);
-
+  const contactPersons = [
+    { name: "Paul S", role: "Building Manager", phone: "226-898-0000", image: personImage, bio:"I'm reposible for finiding you or your friends a new appartment" },
+    { name: "Maria L", role: "Leasing Consultant", phone: "226-898-1234", image: personImage,bio:"I'm reposible for finiding you or your friends a new appartment" },
+  ];
   const [leasingOfficeMap, setLeasingOfficeMap] = useState({
     latitude: 43.4778939,
     longitude: -80.5374425,
@@ -52,23 +56,41 @@ export const Contact = ({ navigation }) => {
     longitudeDelta: 0.0007,
   });
 
+  const cardWidth = Dimensions.get('window').width * 0.93; // 90% of screen width
+
   return (
     <ScrollView
-      style={{flex:1, padding:12}}
+      style={{ flex: 1, padding: 12 }}
       contentContainerStyle={{ paddingBottom: 20 }}>
       <StatusBar barStyle="light-content" />
 
-      {/* Header Contact Person */}
-      <View style={styles.card}>
-        <View style={styles.header}>
-          <Image source={personImage} style={styles.profileImage} />
-          <View>
-            <Text style={styles.name}>Paul S</Text>
-            <Text style={styles.role}>Building Manager</Text>
-            <Text style={styles.phone}>226-898-0000</Text>
+      {/* Horizontal Scroll for Contact Persons */}
+      <ScrollView
+        horizontal
+        pagingEnabled
+        //showsHorizontalScrollIndicator={false}
+        decelerationRate="normal"
+        snapToInterval={cardWidth + 4}
+        contentContainerStyle={{ paddingHorizontal: 4 / 2, gap: 4 }}>
+
+        {contactPersons.map((person, index) => (
+          <View key={index} style={[styles.card, { width: cardWidth, paddingVertical: 20 }]}>
+            <View style={styles.header}>
+              <Image source={person.image} style={styles.profileImage} />
+              <View>
+                <Text style={styles.name}>{person.name}</Text>
+                <Text style={styles.role}>{person.role}</Text>
+                <Text style={styles.phone}>{person.phone}</Text>
+              </View>
+            </View>
+            {index < contactPersons.length - 1 && (
+              <Feather style={{ marginTop: "20%", alignSelf: "flex-end", position: 'absolute' }} name="chevrons-right" size={24} />
+            )}
+
+            <Text style={{marginTop:"3%"}}>{person.bio}</Text>
           </View>
-        </View>
-      </View>
+        ))}
+      </ScrollView>
 
       {/* Management Office (The Hub) */}
       <ContactSection
@@ -78,7 +100,7 @@ export const Contact = ({ navigation }) => {
         toggleMap={() => setShowManagmentMap((prev) => !prev)}
         mapRegion={leasingOfficeMap}
         appleMapsID="https://maps.apple.com/place?place-id=ID916AE3839E5B622&address=130+Columbia+St+W%2C+Waterloo+ON+N2L+0G6%2C+Canada&coordinate=43.4780263%2C-80.537615&name=The+Hub&_provider=9902"
-        address= {propertyManagementOffice}
+        address={propertyManagementOffice}
         links={[
           {
             icon: emailIcon,
@@ -102,7 +124,7 @@ export const Contact = ({ navigation }) => {
         showMap={showLeasingMap}
         toggleMap={() => setShowLeasingMap((prev) => !prev)}
         mapRegion={leasingOfficeMap}
-        address= {leasingOfficeAddress}
+        address={leasingOfficeAddress}
         appleMapsID="https://maps.apple.com/place?place-id=IBBDBBA2BFE3F9877&address=4-150+University+Ave+W%2C+Waterloo+ON+N2L+6J3%2C+Canada&coordinate=43.4723948%2C-80.5360562&name=Accommod8u&_provider=9902"
         links={[
           {
@@ -126,7 +148,7 @@ export const Contact = ({ navigation }) => {
       />
 
       {/* Website redirect Button */}
-      <PrimaryButton text="Accommod8u.com" onPress={() => { Linking.openURL("https://www.accommod8u.com/");}} style={{marginVertical:20}}/>
+      <PrimaryButton text="Accommod8u.com" onPress={() => { Linking.openURL("https://www.accommod8u.com/"); }} style={{ marginVertical: 20 }} />
 
       {/* Social Media */}
       <View style={styles.socialContainer}>
@@ -149,11 +171,10 @@ const ContactSection = ({ title, hours, links, showMap, toggleMap, mapRegion, ad
   <View style={styles.card}>
     <Text style={styles.sectionTitle}>{title}</Text>
     <Text style={styles.sectionHours}>{hours}</Text>
-    {links.map((link, index) =>
-     {
+    {links.map((link, index) => {
       const isMapLink = link.icon === mapsIcon;
       return (
-        <TouchableOpacity key={index}style={styles.linkRow} onPress={isMapLink ? toggleMap : link.action} activeOpacity={0.7}>
+        <TouchableOpacity key={index} style={styles.linkRow} onPress={isMapLink ? toggleMap : link.action} activeOpacity={0.7}>
           <Image source={link.icon} style={styles.linkIcon} />
           <Text style={styles.linkText}>{link.text}</Text>
         </TouchableOpacity>
@@ -162,7 +183,7 @@ const ContactSection = ({ title, hours, links, showMap, toggleMap, mapRegion, ad
 
     {showMap && (
       <TouchableOpacity onPress={() => openGoogleMaps(address, appleMapsID)}>
-        <MapView style={styles.map} initialRegion={mapRegion} showsUserLocation/>
+        <MapView style={styles.map} initialRegion={mapRegion} showsUserLocation />
       </TouchableOpacity>
     )}
   </View>
@@ -184,10 +205,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    right: '3%',
+    bottom: "10%"
   },
   profileImage: {
-    width: 70,
-    height: 70,
+    width: 95,
+    height: 95,
     borderRadius: 50,
     marginRight: 16,
   },
@@ -232,7 +255,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 24,
-    alignItems:'center'
+    alignItems: 'center'
   },
   socialIcon: {
     width: 32,
