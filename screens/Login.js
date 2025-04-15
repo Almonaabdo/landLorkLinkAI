@@ -15,6 +15,12 @@ import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { PrimaryButton } from "../components/Buttons";
 import Feather from '@expo/vector-icons/Feather';
+import { Dimensions, Platform } from 'react-native';
+
+const { width: screenWidth } = Dimensions.get('window');
+const isWeb = Platform.OS === 'web';
+const isLargeScreen = screenWidth > 768; //tablets, desktops
+
 // Logo
 const logoImg = require("../assets/Accommod8u.jpg");
 
@@ -125,51 +131,68 @@ export function LoginScreen({ navigation })
 // styling
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "#ffffff",
-    padding: '4%',
+    paddingHorizontal: isLargeScreen ? 60 : '4%',
+    paddingTop: isWeb ? 40 : 0,
+    flex: 1,
+    alignSelf: 'center',
+    width: isLargeScreen ? 750 : '100%', // limits content width on large screens
   },
+
   logo: {
     width: '100%',
-    height: 150,
-    marginTop: '5%',
-    resizeMode: 'stretch',
+    height: isLargeScreen ? 180 : 140,
+    marginTop: isLargeScreen ? 30 : '5%',
+    resizeMode: 'cover',
     borderRadius: 20,
     alignSelf: 'center',
   },
+
   titleHeader: {
-    fontSize: 28,
+    fontSize: isLargeScreen ? 36 : 28,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginTop: isLargeScreen ? 30 : '5%',
     textAlign: 'center',
   },
+
   subHeader: {
     color: "gray",
     marginBottom: 20,
     textAlign: 'center',
+    fontSize: isLargeScreen ? 18 : 14,
   },
+
   label: {
-    fontSize: 16,
+    fontSize: isLargeScreen ? 18 : 16,
     marginBottom: 5,
   },
+
   textInput: {
     height: 50,
     borderColor: '#cccccc',
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     marginBottom: 20,
+    fontSize: isLargeScreen ? 18 : 16,
+    backgroundColor: '#fafafa',
   },
+
   errorText: {
     color: 'red',
     marginTop: 10,
     textAlign: 'center',
+    fontSize: isLargeScreen ? 16 : 14,
   },
+
   signUpContainer: {
     alignSelf: "center",
-    marginTop: 10,
+    marginTop: 15,
   },
+
   signUpText: {
     color: '#3e1952',
+    fontSize: isLargeScreen ? 16 : 14,
+    fontWeight: '500',
   },
 });

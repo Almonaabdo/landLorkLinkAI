@@ -8,7 +8,7 @@
 import React, { useState } from "react";
 import { View, Text, Dimensions, Image, Platform, TouchableOpacity, StatusBar, StyleSheet, Linking, ScrollView } from "react-native";
 import { PrimaryButton } from "../components/Buttons";
-import MapView from "react-native-maps";
+//import MapView from "react-native-maps";
 import Feather from '@expo/vector-icons/Feather';
 
 // icons
@@ -181,11 +181,12 @@ const ContactSection = ({ title, hours, links, showMap, toggleMap, mapRegion, ad
       );
     })}
 
-    {showMap && (
+    {/* Commented for now as new architecture which is causing expo WEB problems */}
+    {/* {showMap && (
       <TouchableOpacity onPress={() => openGoogleMaps(address, appleMapsID)}>
         <MapView style={styles.map} initialRegion={mapRegion} showsUserLocation />
       </TouchableOpacity>
-    )}
+    )} */}
   </View>
 );
 
