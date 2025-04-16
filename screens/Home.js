@@ -10,7 +10,7 @@
 */
 
 import React, { useState } from "react";
-import { RefreshControl, Text, Linking, Image, Animated, TouchableOpacity, Modal, TextInput, StatusBar, ScrollView, View } from "react-native";
+import { RefreshControl, Text, Linking, Image, Animated, TouchableOpacity, Modal, TextInput, StatusBar, ScrollView, View, SafeAreaView, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { SelectList } from 'react-native-dropdown-select-list';
 import { PrimaryButton } from "../components/Buttons.js";
@@ -213,332 +213,497 @@ export function HomeScreen({ navigation }) {
   };
   /////////////////////////////////////////////////////VIEW///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: "white" }}
-      contentContainerStyle={{ paddingBottom: "50%" }}
-      showsVerticalScrollIndicator={false}
-      refreshControl={<RefreshControl refreshing={loading} onRefresh={loadRequests} />}>
-      <StatusBar barStyle="light-content" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f9fa" }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 50 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={loadRequests} />}>
 
-      {/* APPARTMENT NAME AND IMAGE */}
-      {/** // Start gradient at the left and end it at right // remove to make it top to bottom*/}
-      <LinearGradient colors={['#6d7fab', 'white']} start={{ x: 0, y: 0.7 }} end={{ x: 0, y: 1.1 }} style={{ height: "30%", paddingHorizontal: 0 }}>
+        <StatusBar barStyle="light-content" />
 
-        <View style={{ flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-          <Image source={icons.King_Street_North} style={{ width: '100%', height: "65%", borderRadius: 5, resizeMode: "stretch" }} />
-          <Text style={{ fontSize: 28, fontWeight: "500", color: 'white', fontFamily: 'Avenir' }}>308 King Street North </Text>
+        {/* Header Section with Building Image and Name */}
+        <View style={styles.headerContainer}>
+          <LinearGradient
+            colors={['#2c4c9c', '#3a5cb5']}
+            style={styles.headerGradient}
+          >
+            <Image
+              source={icons.King_Street_North}
+              style={styles.buildingImage}
+            />
+            <View style={styles.buildingInfo}>
+              <Text style={styles.buildingName}>308 King Street North</Text>
+              <Text style={styles.buildingStatus}>Active • 24/7 Access</Text>
+            </View>
+          </LinearGradient>
         </View>
 
-      </LinearGradient>
+        {/* Quick Actions Section */}
+        <View style={styles.quickActionsContainer}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.quickActionsGrid}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setIsMaintenanceModalVisible(true)}
+            >
+              <View style={styles.actionIconContainer}>
+                <Image source={icons.WrenchIcon} style={styles.actionIcon} />
+              </View>
+              <Text style={styles.actionText}>Maintenance</Text>
+            </TouchableOpacity>
 
-      {/* Modal Menu ICONS */}
-      <View style={{ flexDirection: "row", justifyContent: "space-between", marginHorizontal: 15, marginVertical: "2%" }}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={handleNfcModalOpen}
+            >
+              <View style={styles.actionIconContainer}>
+                <Image source={icons.DoorHandleIcon} style={styles.actionIcon} />
+              </View>
+              <Text style={styles.actionText}>Access</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setIsMaintenanceModalVisible(true)}>
-            <Image source={icons.WrenchIcon} style={{ width: 40, height: 40 }} />
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setIsIncidentModalVisible(true)}
+            >
+              <View style={styles.actionIconContainer}>
+                <Image source={icons.incidentIcon} style={styles.actionIcon} />
+              </View>
+              <Text style={styles.actionText}>Report</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleNfcModalOpen}>
-            <Image source={icons.DoorHandleIcon} style={{ width: 40, height: 40 }} />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => { setIsIncidentModalVisible(true) }}>
-            <Image source={icons.incidentIcon} style={{ width: 40, height: 40 }} />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => { setIsEmergencyModalVisible(true) }}>
-            <Image source={icons.emergencyIcon} style={{ width: 40, height: 40 }} />
-          </TouchableOpacity>
-      </View>
-
-      {/* Announcements LIST */}
-      <AnnouncementsList announcements={announcements} navigation={navigation} />
-
-
-      {/* Mini cards */}
-      {/* <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-around", marginVertical: "1%" }}>
-        <MiniCard title="Packages" detail="0" icon={icons.packageIcon} />
-        <MiniCard title="Announcements" detail={announcements.length} icon={icons.announcementIcon} />
-      </View> */}
-
-      {/* Maintaincence Card */}
-      <TouchableOpacity onPress={() => navigation.navigate("Maintenances")}>
-        <HomeCard
-          title="Maintenance"
-          description={`Open Requests: ${requestCount}`}
-          imageUrl={icons.maintainenceBackground} />
-      </TouchableOpacity>
-
-      {/* Dashboard Card */}
-      <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
-        <HomeCard
-          title="Dashboard"
-          description="Review latest data"
-          imageUrl={icons.dashboardIcon} />
-      </TouchableOpacity>
-
-      {/* Maintenance Modal */}
-      <Modal
-        visible={isMaintenanceModalVisible}
-        onRequestClose={() => { setIsMaintenanceModalVisible(false) }}
-        onDismiss={() => setImagePickerModalVisible(false)}
-        animationType="slide"
-        presentationStyle="pageSheet">
-
-        <View style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 15 }}>
-            <View style={{ width: 4, height: 24, backgroundColor: '#2c4c9c', borderRadius: 2, marginRight: 15 }} />
-            <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#333', flex: 1 }}>Request Maintenance</Text>
-            <TouchableOpacity onPress={() => setIsMaintenanceModalVisible(false)}>
-              <Feather name="x" size={24} color="#666" />
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setIsEmergencyModalVisible(true)}
+            >
+              <View style={styles.actionIconContainer}>
+                <Image source={icons.emergencyIcon} style={styles.actionIcon} />
+              </View>
+              <Text style={styles.actionText}>Emergency</Text>
             </TouchableOpacity>
           </View>
+        </View>
 
-          <ScrollView>
+        {/* Announcements Section */}
+        <View style={styles.announcementsContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Announcements</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Announcements')}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <AnnouncementsList announcements={announcements.slice(0, 3)} />
+        </View>
 
-            {/* Issue Title */}
-            <View style={{ marginBottom: 20 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <Feather name="edit-3" size={20} color="#2D3748" />
-                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Issue Title</Text>
-              </View>
-              <TextInput
-                placeholder="Enter issue title"
-                placeholderTextColor="grey"
-                style={{
-                  borderColor: '#e0e0e0',
-                  borderWidth: 1,
-                  borderRadius: 8,
-                  padding: 12,
-                  backgroundColor: "#f8f8f8",
-                  fontSize: 16
-                }}
-                onChangeText={setIssueTitle}
-                value={issueTitle} />
+        {/* Maintenance Status Section */}
+        <View style={styles.statusContainer}>
+          <Text style={styles.sectionTitle}>Maintenance Status</Text>
+          <View style={styles.statusCard}>
+            <View style={styles.statusItem}>
+              <Text style={styles.statusNumber}>{requestCount}</Text>
+              <Text style={styles.statusLabel}>Active Requests</Text>
             </View>
-
-            {/* Issue Description */}
-            <View style={{ marginBottom: 20 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <Feather name="align-left" size={20} color="#4A5568" />
-                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Issue Description</Text>
-              </View>
-              <TextInput
-                placeholder="Describe the problem"
-                multiline
-                numberOfLines={4}
-                placeholderTextColor="grey"
-                style={{
-                  height: 120,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  padding: 12,
-                  borderRadius: 8,
-                  fontSize: 16,
-                  textAlignVertical: 'top',
-                  backgroundColor: "#f8f8f8"
-                }}
-                onChangeText={setIssueDescription}
-                value={issueDescription}
-              />
+            <View style={styles.statusDivider} />
+            <View style={styles.statusItem}>
+              <Text style={styles.statusNumber}>24h</Text>
+              <Text style={styles.statusLabel}>Response Time</Text>
             </View>
+          </View>
+        </View>
 
-            {/* Maintenance Type */}
-            <View style={{ marginBottom: 20 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <Feather name="tag" size={20} color="#805AD5" />
-                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Maintenance Type</Text>
-              </View>
-              <SelectList
-                setSelected={setSelected}
-                data={maintainenceList}
-                placeholder="Select Issue Type"
-                searchPlaceholder="Search"
-                dropdownStyles={{ borderRadius: 8, borderColor: '#e0e0e0' }}
-                boxStyles={{ borderRadius: 8, borderColor: '#e0e0e0', backgroundColor: "#f8f8f8" }}
-                save="value"
-              />
-            </View>
+        {/* Maintaincence Card */}
+        <TouchableOpacity onPress={() => navigation.navigate("Maintenances")}>
+          <HomeCard
+            title="Maintenance"
+            description={`Open Requests: ${requestCount}`}
+            imageUrl={icons.maintainenceBackground} />
+        </TouchableOpacity>
 
-            {/* Priority Level */}
-            <View style={{ marginBottom: 20 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <Feather name="alert-circle" size={20} color="#E53E3E" />
-                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Priority Level</Text>
-              </View>
-              <SelectList
-                setSelected={setSelectedPriority}
-                data={priorityLevels}
-                placeholder="Select Priority"
-                searchPlaceholder="Search"
-                dropdownStyles={{ borderRadius: 8, borderColor: '#e0e0e0' }}
-                boxStyles={{ borderRadius: 8, borderColor: '#e0e0e0', backgroundColor: "#f8f8f8" }}
-                save="value"
-              />
-            </View>
+        {/* Dashboard Card */}
+        <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
+          <HomeCard
+            title="Dashboard"
+            description="Review latest data"
+            imageUrl={icons.dashboardIcon} />
+        </TouchableOpacity>
 
-            {/* Add Image */}
-            <View style={{ marginBottom: 20 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <Feather name="image" size={20} color="#3182CE" />
-                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Add Image</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => setImagePickerModalVisible(true)}
-                style={{
-                  height: 100,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  borderRadius: 8,
-                  backgroundColor: "#f8f8f8",
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                {image ? (
-                  <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
-                ) : (
-                  <Feather name="plus" size={40} color="#2c4c9c" />
-                )}
+        {/* Maintenance Modal */}
+        <Modal
+          visible={isMaintenanceModalVisible}
+          onRequestClose={() => { setIsMaintenanceModalVisible(false) }}
+          onDismiss={() => setImagePickerModalVisible(false)}
+          animationType="slide"
+          presentationStyle="pageSheet">
+
+          <View style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 15 }}>
+              <View style={{ width: 4, height: 24, backgroundColor: '#2c4c9c', borderRadius: 2, marginRight: 15 }} />
+              <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#333', flex: 1 }}>Request Maintenance</Text>
+              <TouchableOpacity onPress={() => setIsMaintenanceModalVisible(false)}>
+                <Feather name="x" size={24} color="#666" />
               </TouchableOpacity>
             </View>
 
-            {/* Submit and Cancel Buttons */}
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 20, gap: 12 }}>
-              <TouchableOpacity
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  borderRadius: 8,
-                  backgroundColor: '#f0f0f0',
-                }}
-                onPress={() => setIsMaintenanceModalVisible(false)}>
-                <Text style={{ color: '#666', fontSize: 16, fontWeight: '600' }}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  borderRadius: 8,
-                  backgroundColor: '#2c4c9c',
-                }}
-                onPress={handleRepairRequestSubmit}>
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Submit</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+            <ScrollView>
 
-          {/* IMAGE UPLOAD MODAL */}
-          <Modal
-            visible={imagePickerModalVisible}
-            animationType="fade"
-            transparent={true}
-            onDismiss={() => setImagePickerModalVisible(false)}
-            onRequestClose={() => setImagePickerModalVisible(false)}>
-
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <View style={{ width: '70%', backgroundColor: 'white', borderRadius: 10, padding: 20 }}>
-
-                {/* Image Upload Buttons */}
-                <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 20 }}>
-                  <TouchableOpacity
-                    onPress={() => uploadImage("Camera")}
-                    style={{ alignItems: 'center' }}>
-                    <Feather name="camera" size={40} color="#3182CE" />
-                    <Text style={{ marginTop: 8, color: '#333' }}>Camera</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => uploadImage("Gallery")}
-                    style={{ alignItems: 'center' }}>
-                    <Feather name="image" size={40} color="#3182CE" />
-                    <Text style={{ marginTop: 8, color: '#333' }}>Gallery</Text>
-                  </TouchableOpacity>
+              {/* Issue Title */}
+              <View style={{ marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <Feather name="edit-3" size={20} color="#2D3748" />
+                  <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Issue Title</Text>
                 </View>
-
-                {/* Close Button */}
-                <TouchableOpacity
-                  onPress={() => setImagePickerModalVisible(false)}
+                <TextInput
+                  placeholder="Enter issue title"
+                  placeholderTextColor="grey"
                   style={{
-                    padding: 10,
-                    alignItems: 'center',
-                    borderTopWidth: 1,
-                    borderTopColor: '#f0f0f0'
+                    borderColor: '#e0e0e0',
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    padding: 12,
+                    backgroundColor: "#f8f8f8",
+                    fontSize: 16
+                  }}
+                  onChangeText={setIssueTitle}
+                  value={issueTitle} />
+              </View>
+
+              {/* Issue Description */}
+              <View style={{ marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <Feather name="align-left" size={20} color="#4A5568" />
+                  <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Issue Description</Text>
+                </View>
+                <TextInput
+                  placeholder="Describe the problem"
+                  multiline
+                  numberOfLines={4}
+                  placeholderTextColor="grey"
+                  style={{
+                    height: 120,
+                    borderWidth: 1,
+                    borderColor: '#e0e0e0',
+                    padding: 12,
+                    borderRadius: 8,
+                    fontSize: 16,
+                    textAlignVertical: 'top',
+                    backgroundColor: "#f8f8f8"
+                  }}
+                  onChangeText={setIssueDescription}
+                  value={issueDescription}
+                />
+              </View>
+
+              {/* Maintenance Type */}
+              <View style={{ marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <Feather name="tag" size={20} color="#805AD5" />
+                  <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Maintenance Type</Text>
+                </View>
+                <SelectList
+                  setSelected={setSelected}
+                  data={maintainenceList}
+                  placeholder="Select Issue Type"
+                  searchPlaceholder="Search"
+                  dropdownStyles={{ borderRadius: 8, borderColor: '#e0e0e0' }}
+                  boxStyles={{ borderRadius: 8, borderColor: '#e0e0e0', backgroundColor: "#f8f8f8" }}
+                  save="value"
+                />
+              </View>
+
+              {/* Priority Level */}
+              <View style={{ marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <Feather name="alert-circle" size={20} color="#E53E3E" />
+                  <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Priority Level</Text>
+                </View>
+                <SelectList
+                  setSelected={setSelectedPriority}
+                  data={priorityLevels}
+                  placeholder="Select Priority"
+                  searchPlaceholder="Search"
+                  dropdownStyles={{ borderRadius: 8, borderColor: '#e0e0e0' }}
+                  boxStyles={{ borderRadius: 8, borderColor: '#e0e0e0', backgroundColor: "#f8f8f8" }}
+                  save="value"
+                />
+              </View>
+
+              {/* Add Image */}
+              <View style={{ marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <Feather name="image" size={20} color="#3182CE" />
+                  <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Add Image</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setImagePickerModalVisible(true)}
+                  style={{
+                    height: 100,
+                    borderWidth: 1,
+                    borderColor: '#e0e0e0',
+                    borderRadius: 8,
+                    backgroundColor: "#f8f8f8",
+                    justifyContent: 'center',
+                    alignItems: 'center'
                   }}>
-                  <Text style={{ color: '#666' }}>Close</Text>
+                  {image ? (
+                    <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
+                  ) : (
+                    <Feather name="plus" size={40} color="#2c4c9c" />
+                  )}
                 </TouchableOpacity>
               </View>
-            </View>
-          </Modal>
-        </View>
-      </Modal>
 
-      {/* NFC Scanner Modal */}
-      <Modal
-        visible={isNfcModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setIsNfcModalVisible(false)}>
-        <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#2c2c2c" }}>
+              {/* Submit and Cancel Buttons */}
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 20, gap: 12 }}>
+                <TouchableOpacity
+                  style={{
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 8,
+                    backgroundColor: '#f0f0f0',
+                  }}
+                  onPress={() => setIsMaintenanceModalVisible(false)}>
+                  <Text style={{ color: '#666', fontSize: 16, fontWeight: '600' }}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 8,
+                    backgroundColor: '#2c4c9c',
+                  }}
+                  onPress={handleRepairRequestSubmit}>
+                  <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Submit</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
 
+            {/* IMAGE UPLOAD MODAL */}
+            <Modal
+              visible={imagePickerModalVisible}
+              animationType="fade"
+              transparent={true}
+              onDismiss={() => setImagePickerModalVisible(false)}
+              onRequestClose={() => setImagePickerModalVisible(false)}>
 
-          {/*Down Arrow Icon*/}
-          <TouchableOpacity onPress={() => setIsNfcModalVisible(false)} style={{ marginTop: "25%" }}>
-            <Feather name="arrow-down" size={64} color="white" />
-          </TouchableOpacity>
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                <View style={{ width: '70%', backgroundColor: 'white', borderRadius: 10, padding: 20 }}>
 
+                  {/* Image Upload Buttons */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 20 }}>
+                    <TouchableOpacity
+                      onPress={() => uploadImage("Camera")}
+                      style={{ alignItems: 'center' }}>
+                      <Feather name="camera" size={40} color="#3182CE" />
+                      <Text style={{ marginTop: 8, color: '#333' }}>Camera</Text>
+                    </TouchableOpacity>
 
-          {/*Animated SCAN IMAGE*/}
-          <Animated.Image
-            style={{
-              width: 400,
-              height: 300,
-              opacity: fadeAnim,
-              marginTop: '50%',
-              borderRadius: 20
-            }}
-            source={icons.NfcScannerScreen} />
+                    <TouchableOpacity
+                      onPress={() => uploadImage("Gallery")}
+                      style={{ alignItems: 'center' }}>
+                      <Feather name="image" size={40} color="#3182CE" />
+                      <Text style={{ marginTop: 8, color: '#333' }}>Gallery</Text>
+                    </TouchableOpacity>
+                  </View>
 
-        </View>
-      </Modal>
-
-      {/* EMERGENCY  Modal */}
-      <Modal
-        visible={isEmergencyModalVisible}
-        animationType="slide"
-        onRequestClose={() => setIsEmergencyModalVisible(false)}
-        presentationStyle="pageSheet">
-        <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#FFFFF", padding: "4%" }}>
-
-          {/* Fire Safety Guide Title */}
-          <View style={{ backgroundColor: "red", padding: 10, borderRadius: 7 }}>
-            <Text style={{ fontSize: 34 }}>Fire Safety Guide</Text>
+                  {/* Close Button */}
+                  <TouchableOpacity
+                    onPress={() => setImagePickerModalVisible(false)}
+                    style={{
+                      padding: 10,
+                      alignItems: 'center',
+                      borderTopWidth: 1,
+                      borderTopColor: '#f0f0f0'
+                    }}>
+                    <Text style={{ color: '#666' }}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
           </View>
-          <View style={{ marginVertical: "10%" }} />
+        </Modal>
 
-          <EmergencyModalCard
-            icon={icons.exitIcon}
-            title="Step 1: Evacuate"
-            description="Go to the nearest exit and leave the building. Avoid Elvators" />
-
-          <EmergencyModalCard
-            icon={icons.shelterIcon}
-            title="Step 2: Shelter in Place"
-            description="If you can't exit safely, close doors, seal gaps." />
+        {/* NFC Scanner Modal */}
+        <Modal
+          visible={isNfcModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setIsNfcModalVisible(false)}>
+          <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#2c2c2c" }}>
 
 
-          <EmergencyModalCard
-            icon={icons.helpIcon}
-            title="Step 3: Signal for help"
-            description="Open the window and signal for help after calling 911." />
+            {/*Down Arrow Icon*/}
+            <TouchableOpacity onPress={() => setIsNfcModalVisible(false)} style={{ marginTop: "25%" }}>
+              <Feather name="arrow-down" size={64} color="white" />
+            </TouchableOpacity>
 
-          <View style={{ marginVertical: "20%" }} />
 
-          {/* CALL 9 1 1 BUTTON */}
-          <PrimaryButton text={"CALL 9 1 1 "} onPress={() => Linking.openURL(`tel:911`)} component={<Feather name="phone" size={24} color="white" />} />
+            {/*Animated SCAN IMAGE*/}
+            <Animated.Image
+              style={{
+                width: 400,
+                height: 300,
+                opacity: fadeAnim,
+                marginTop: '50%',
+                borderRadius: 20
+              }}
+              source={icons.NfcScannerScreen} />
 
-        </View>
-      </Modal>
+          </View>
+        </Modal>
 
-    </ScrollView>
+        {/* EMERGENCY  Modal */}
+        <Modal
+          visible={isEmergencyModalVisible}
+          animationType="slide"
+          onRequestClose={() => setIsEmergencyModalVisible(false)}
+          presentationStyle="pageSheet">
+          <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#FFFFF", padding: "4%" }}>
+
+            {/* Fire Safety Guide Title */}
+            <View style={{ backgroundColor: "red", padding: 10, borderRadius: 7 }}>
+              <Text style={{ fontSize: 34 }}>Fire Safety Guide</Text>
+            </View>
+            <View style={{ marginVertical: "10%" }} />
+
+            <EmergencyModalCard
+              icon={icons.exitIcon}
+              title="Step 1: Evacuate"
+              description="Go to the nearest exit and leave the building. Avoid Elvators" />
+
+            <EmergencyModalCard
+              icon={icons.shelterIcon}
+              title="Step 2: Shelter in Place"
+              description="If you can't exit safely, close doors, seal gaps." />
+
+
+            <EmergencyModalCard
+              icon={icons.helpIcon}
+              title="Step 3: Signal for help"
+              description="Open the window and signal for help after calling 911." />
+
+            <View style={{ marginVertical: "20%" }} />
+
+            {/* CALL 9 1 1 BUTTON */}
+            <PrimaryButton text={"CALL 9 1 1 "} onPress={() => Linking.openURL(`tel:911`)} component={<Feather name="phone" size={24} color="white" />} />
+
+          </View>
+        </Modal>
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    height: 250,
+    marginBottom: 20,
+  },
+  headerGradient: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'flex-end',
+  },
+  buildingImage: {
+    width: '100%',
+    height: '70%',
+    borderRadius: 12,
+    marginBottom: 15,
+  },
+  buildingInfo: {
+    paddingHorizontal: 10,
+  },
+  buildingName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 5,
+  },
+  buildingStatus: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  quickActionsContainer: {
+    padding: 20,
+    backgroundColor: 'white',
+    marginBottom: 20,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  actionButton: {
+    alignItems: 'center',
+    width: '22%',
+  },
+  actionIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#f0f2f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  actionIcon: {
+    width: 30,
+    height: 30,
+  },
+  actionText: {
+    fontSize: 12,
+    color: '#2c4c9c',
+    fontWeight: '500',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2c4c9c',
+    marginBottom: 15,
+  },
+  announcementsContainer: {
+    padding: 20,
+    backgroundColor: 'white',
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  viewAllText: {
+    color: '#2c4c9c',
+    fontSize: 14,
+  },
+  statusContainer: {
+    padding: 20,
+    backgroundColor: 'white',
+  },
+  statusCard: {
+    flexDirection: 'row',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 20,
+  },
+  statusItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statusNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2c4c9c',
+    marginBottom: 5,
+  },
+  statusLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  statusDivider: {
+    width: 1,
+    backgroundColor: '#ddd',
+    marginHorizontal: 20,
+  },
+});
