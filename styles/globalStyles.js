@@ -1,8 +1,8 @@
 import { StyleSheet } from "react-native";
 
-const primaryColor = "#5E3A87"; // purple
+export const primaryColor = "#5E3A87";
 const borderColor = "#DDD";
-const inputBackground = "#F9F6FC"; // input background
+const inputBackground = "#dde2ed";
 const fontPrimary = "System";
 
 export const globalStyles = StyleSheet.create({

@@ -24,7 +24,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Constants
-const primaryColor = "#3e1952";
+const primaryColor = "#2c4c9c";
 const secondaryColor = "#6a3093";
 const backgroundColor = "#f8f9fa";
 const textColor = "#2c3e50";
@@ -194,7 +194,7 @@ export function Profile({ navigation }) {
       style={[styles.container, { opacity: fadeAnim }]}
       showsVerticalScrollIndicator={false}
     >
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
 
       {/* Profile Header */}
       <View style={styles.header}>

@@ -31,7 +31,7 @@ import { Events } from './screens/Events';
 import { Dashboard } from './screens/Dashboard';
 import ChatScreen from './screens/chat';
 
-const primaryColor = "#3e1952";
+const primaryColor = "#2c4c9c";
 const Tab = createBottomTabNavigator(); 
 const Stack = createStackNavigator();
 
@@ -49,7 +49,7 @@ const TabIcon = ({ name, label, focused }) =>
   const iconSize = focused ? 30 : 24;
   return (
     <View style={{ alignItems: 'center'}}>
-        <Feather name={name} size={24} color="black" />
+        <Feather name={name} size={focused?32:24} color= {focused?primaryColor : "black"} />
       <Text style={{ fontSize: 10, color: focused ? primaryColor : 'black', fontWeight:"700" }}>{label}</Text>
     </View>
   );

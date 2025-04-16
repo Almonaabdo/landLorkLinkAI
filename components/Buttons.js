@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 
 
-const primaryColor = "#60099c"
+const primaryColor = "#2c4c9c"
 export function PrimaryButton ({ text, onPress, style, component, color }) {
   return (
     <TouchableOpacity onPress={onPress} style={style}>

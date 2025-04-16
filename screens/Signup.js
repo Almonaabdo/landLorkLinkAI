@@ -20,7 +20,7 @@ import Feather from '@expo/vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
 import { getStorage, ref as storageRef, uploadBytes } from 'firebase/storage';
 // Logo
-const logoImg = require(".././assets/Accommod8u.jpg");
+const logoImg = require(".././assets/landlordlink.jpg");
 const defaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/accommod8u-4a0a4.appspot.com/o/defaultProfilePicture.jpg?alt=media";
 
 // global variables
@@ -203,6 +203,7 @@ export function SignUpScreen({ navigation }) {
           onPress={handleSignUp}
           disabled={isLoading}
           component={<Feather name="user-plus" size={24} color="white" />}
+          style={{marginTop:"10%"}}
         />
 
         {/* Error Messages */}
@@ -261,70 +262,88 @@ export function SignUpScreen({ navigation }) {
   }
 }
 
-// styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
-    padding: '4%',
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
+
   logo: {
-    width: '100%',
-    height: 150,
+    width: '105%',
+    height: 145,
     resizeMode: 'stretch',
-    borderRadius: 20,
-    marginTop: '5%',
+    borderRadius: 12,
     alignSelf: 'center',
+    marginVertical:30
   },
 
   titleHeader: {
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 8,
   },
+
   subHeader: {
     color: "gray",
     textAlign: 'center',
+    fontSize: 14,
   },
+
   label: {
     fontSize: 16,
-    marginBottom: 5,
+    marginBottom: 6,
+    marginTop: 12,
   },
+
   textInput: {
     height: 50,
     borderColor: '#cccccc',
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+    paddingHorizontal: 12,
+    backgroundColor: '#fafafa',
+    fontSize: 16,
   },
+
   errorText: {
     color: 'red',
-    marginTop: 10,
     textAlign: 'center',
+    fontSize: 14,
+    marginTop: 10,
   },
+
   signInText: {
-    color: '#3e1952',
+    color: '#2c4c9c',
     alignSelf: 'center',
-    marginTop: '2%'
+    fontSize: 14,
+    fontWeight: '500',
   },
+
   profilePictureContainer: {
     alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: 30,
   },
+
   profilePicture: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    marginBottom: 10,
+    marginBottom: 12,
   },
+
   changePictureButton: {
-    backgroundColor: '#3e1952',
-    padding: 10,
+    backgroundColor: '#2c4c9c',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
     borderRadius: 8,
   },
+
   changePictureText: {
     color: 'white',
     textAlign: 'center',
+    fontSize: 14,
   },
 });

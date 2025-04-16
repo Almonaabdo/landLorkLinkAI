@@ -10,7 +10,7 @@ import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { useFocusEffect } from '@react-navigation/native';
 
-const primaryColor = "#3e1952"
+const primaryColor = "#2c4c9c"
 
 
 
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Avenir',
   },
   card: {
-    backgroundColor: '#dbceeb',
+    backgroundColor: '#d3d9e8',
     borderRadius: 4,
     padding: 15,
     marginBottom: 10,

@@ -4,7 +4,7 @@ import { WebView } from 'react-native-webview';
 import { PrimaryButton } from '../components/Buttons';
 import RoomatesListCard from '../components/RoomatesListCard';
 
-const primaryColor = "#3e1952";
+const primaryColor = "#2c4c9c";
 const secondaryColor = "#6a3093";
 const accentColor = "#a044ff";
 
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     color: primaryColor,
   },
   payButton: {
-    backgroundColor: secondaryColor,
+    backgroundColor: primaryColor,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,

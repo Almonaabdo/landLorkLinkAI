@@ -6,7 +6,7 @@ import { PrimaryButton } from '../components/Buttons';
 import { Checkbox } from 'expo-checkbox';
 import MiniCard from "../components/MiniCard";
 
-const primaryColor = "#3e1952";
+const primaryColor = "#2c4c9c";
 const AppartmentImg = require(".././assets/appartmentInside.jpg");
 const ArrowDownIcon = require(".././assets/arrowDownIcon.png");
 const NfcScannerScreen = require(".././assets/nfcScannerScreen.png");

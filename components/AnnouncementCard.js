@@ -25,7 +25,7 @@ const AnnouncementCard = ({ title, details, timeAgo, image }) => {
       </Text>
     <View style={{flexDirection:'row' }}>
       <Image source={image} style={styles.image}/>
-      <Text style={[styles.details, {color:"#3e1952"}]}> Andy Robinson</Text>
+      <Text style={[styles.details, {color:"#2c4c9c"}]}> Andy Robinson</Text>
     </View>
 
 
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     borderLeftWidth: 4,
-    borderLeftColor: '#9453b8', // #9453b8 might change back to this #3A8DFF
+    borderLeftColor: '#2c4c9c', // #9453b8 might change back to this #3A8DFF
     elevation: 1,
   },
   header: 

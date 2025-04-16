@@ -222,7 +222,7 @@ export function HomeScreen({ navigation }) {
 
       {/* APPARTMENT NAME AND IMAGE */}
       {/** // Start gradient at the left and end it at right // remove to make it top to bottom*/}
-      <LinearGradient colors={['#7e658c', 'white']} start={{ x: 0, y: 0.7 }} end={{ x: 0, y: 1.1 }} style={{ height: "30%", paddingHorizontal: 0 }}>
+      <LinearGradient colors={['#6d7fab', 'white']} start={{ x: 0, y: 0.7 }} end={{ x: 0, y: 1.1 }} style={{ height: "30%", paddingHorizontal: 0 }}>
 
         <View style={{ flexDirection: 'column', alignItems: 'center', flex: 1 }}>
           <Image source={icons.King_Street_North} style={{ width: '100%', height: "65%", borderRadius: 5, resizeMode: "stretch" }} />
@@ -232,31 +232,23 @@ export function HomeScreen({ navigation }) {
       </LinearGradient>
 
       {/* Modal Menu ICONS */}
-      <View style={{ flexDirection: "row", justifyContent: "space-between", marginHorizontal: 20, marginVertical: "2%" }}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", marginHorizontal: 15, marginVertical: "2%" }}>
 
-        <View style={{ backgroundColor: '#e6e6fa', padding: 5, borderRadius: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.50, shadowRadius: 2, elevation: 6 }}>
           <TouchableOpacity onPress={() => setIsMaintenanceModalVisible(true)}>
             <Image source={icons.WrenchIcon} style={{ width: 40, height: 40 }} />
           </TouchableOpacity>
-        </View>
 
-        <View style={{ backgroundColor: '#e6e6fa', padding: 5, borderRadius: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.50, shadowRadius: 2, elevation: 6 }}>
-          <TouchableOpacity onPress={() => { setIsIncidentModalVisible(true) }}>
-            <Image source={icons.incidentIcon} style={{ width: 40, height: 40 }} />
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ backgroundColor: '#e6e6fa', padding: 5, borderRadius: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.50, shadowRadius: 2, elevation: 6 }}>
-          <TouchableOpacity onPress={() => { setIsEmergencyModalVisible(true) }}>
-            <Image source={icons.emergencyIcon} style={{ width: 40, height: 40 }} />
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ backgroundColor: '#e6e6fa', padding: 5, borderRadius: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.50, shadowRadius: 2, elevation: 6 }}>
           <TouchableOpacity onPress={handleNfcModalOpen}>
             <Image source={icons.DoorHandleIcon} style={{ width: 40, height: 40 }} />
           </TouchableOpacity>
-        </View>
+
+          <TouchableOpacity onPress={() => { setIsIncidentModalVisible(true) }}>
+            <Image source={icons.incidentIcon} style={{ width: 40, height: 40 }} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => { setIsEmergencyModalVisible(true) }}>
+            <Image source={icons.emergencyIcon} style={{ width: 40, height: 40 }} />
+          </TouchableOpacity>
       </View>
 
       {/* Announcements LIST */}
@@ -264,10 +256,10 @@ export function HomeScreen({ navigation }) {
 
 
       {/* Mini cards */}
-      <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-around", marginVertical: "1%" }}>
+      {/* <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-around", marginVertical: "1%" }}>
         <MiniCard title="Packages" detail="0" icon={icons.packageIcon} />
         <MiniCard title="Announcements" detail={announcements.length} icon={icons.announcementIcon} />
-      </View>
+      </View> */}
 
       {/* Maintaincence Card */}
       <TouchableOpacity onPress={() => navigation.navigate("Maintenances")}>
@@ -295,7 +287,7 @@ export function HomeScreen({ navigation }) {
 
         <View style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 15 }}>
-            <View style={{ width: 4, height: 24, backgroundColor: '#3e1952', borderRadius: 2, marginRight: 15 }} />
+            <View style={{ width: 4, height: 24, backgroundColor: '#2c4c9c', borderRadius: 2, marginRight: 15 }} />
             <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#333', flex: 1 }}>Request Maintenance</Text>
             <TouchableOpacity onPress={() => setIsMaintenanceModalVisible(false)}>
               <Feather name="x" size={24} color="#666" />
@@ -405,7 +397,7 @@ export function HomeScreen({ navigation }) {
                 {image ? (
                   <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
                 ) : (
-                  <Feather name="plus" size={40} color="#3e1952" />
+                  <Feather name="plus" size={40} color="#2c4c9c" />
                 )}
               </TouchableOpacity>
             </View>
@@ -427,7 +419,7 @@ export function HomeScreen({ navigation }) {
                   paddingVertical: 10,
                   paddingHorizontal: 20,
                   borderRadius: 8,
-                  backgroundColor: '#3e1952',
+                  backgroundColor: '#2c4c9c',
                 }}
                 onPress={handleRepairRequestSubmit}>
                 <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Submit</Text>

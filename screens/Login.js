@@ -22,7 +22,7 @@ const isWeb = Platform.OS === 'web';
 const isLargeScreen = screenWidth > 768; //tablets, desktops
 
 // Logo
-const logoImg = require("../assets/Accommod8u.jpg");
+const logoImg = require("../assets/landlordlink.jpg");
 
 // global variables
 const invalidEmailError = -2;
@@ -56,39 +56,41 @@ export function LoginScreen({ navigation })
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <KeyboardAvoidingView behavior="position">
+    <ScrollView style={styles.container} >
+      <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}>
         <StatusBar barStyle="light-content" />
 
         {/*COMPANY LOGO */}
         <Image source={logoImg} style={styles.logo} />
 
         {/*Loading icon */}
-        <ActivityIndicator size={"large"} color={"purple"} animating={viewError === 1} />
+        <ActivityIndicator size={"large"} color={"blue"} animating={viewError === 1} />
 
         {/* Header Title */}
         <Text style={styles.titleHeader}>Welcome Back!</Text>
         <Text style={styles.subHeader}>Log Into your Account</Text>
 
+
+        <View style={{padding:20}}>
         {/* EMAIL ADDRESS */}
         <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Enter Email"
-          placeholderTextColor={"black"}
-          onChangeText={(text) => { setEmail(text); setViewError(0); }}
-          value={email} />
+          <TextInput
+            style={styles.textInput}
+            placeholder="Enter Email"
+            placeholderTextColor={"black"}
+            onChangeText={(text) => { setEmail(text); setViewError(0); }}
+            value={email} />
 
-        {/* PASSWORD */}
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          secureTextEntry={true}
-          style={styles.textInput}
-          placeholder="Enter Password"
-          placeholderTextColor={"black"}
-          onChangeText={(text) => { setPassword(text); setViewError(0); }}
-          value={password} />
-
+          {/* PASSWORD */}
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            secureTextEntry={true}
+            style={styles.textInput}
+            placeholder="Enter Password"
+            placeholderTextColor={"black"}
+            onChangeText={(text) => { setPassword(text); setViewError(0); }}
+            value={password} />
+        </View>
 
         {/* LOGIN BUTTON */}
         <PrimaryButton text="Login" onPress={() => { if (isFormValid()) { handleSignIn(); } }} component={<Feather name="log-in" size={24} color="white" />} />
@@ -132,39 +134,38 @@ export function LoginScreen({ navigation })
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#ffffff",
-    paddingHorizontal: isLargeScreen ? 60 : '4%',
-    paddingTop: isWeb ? 40 : 0,
     flex: 1,
-    alignSelf: 'center',
-    width: isLargeScreen ? 750 : '100%', // limits content width on large screens
+    paddingTop: isWeb ? 40 : 0,
+    paddingHorizontal: 18,
   },
 
   logo: {
-    width: '100%',
-    height: isLargeScreen ? 180 : 140,
-    marginTop: isLargeScreen ? 30 : '5%',
-    resizeMode: 'cover',
-    borderRadius: 20,
+    width: '105%',
+    height: isLargeScreen ? 200 : 145,
+    resizeMode: 'stretch',
+    borderRadius: 12,
     alignSelf: 'center',
+    marginVertical: 30,
   },
 
   titleHeader: {
     fontSize: isLargeScreen ? 36 : 28,
     fontWeight: 'bold',
-    marginTop: isLargeScreen ? 30 : '5%',
     textAlign: 'center',
+    marginTop: 10,
   },
 
   subHeader: {
     color: "gray",
-    marginBottom: 20,
     textAlign: 'center',
     fontSize: isLargeScreen ? 18 : 14,
+    marginBottom: 20,
   },
 
   label: {
     fontSize: isLargeScreen ? 18 : 16,
-    marginBottom: 5,
+    marginBottom: 6,
+    marginTop: 10,
   },
 
   textInput: {
@@ -173,9 +174,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 20,
     fontSize: isLargeScreen ? 18 : 16,
     backgroundColor: '#fafafa',
+    marginBottom: 20,
   },
 
   errorText: {
@@ -187,11 +188,11 @@ const styles = StyleSheet.create({
 
   signUpContainer: {
     alignSelf: "center",
-    marginTop: 15,
+    marginTop: 25,
   },
 
   signUpText: {
-    color: '#3e1952',
+    color: '#2c4c9c',
     fontSize: isLargeScreen ? 16 : 14,
     fontWeight: '500',
   },

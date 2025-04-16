@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   {
     alignSelf:"start",
     width:"100%",
-    backgroundColor: '#e6e6fa',
+    backgroundColor: '#cad2e3',
     borderRadius: 10,
     padding: 10,
     elevation: 3,
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     padding: 14,
     borderLeftWidth: 4,
-    borderLeftColor: '#b066b3', // #9453b8 might change back to this #3A8DFF
+    borderLeftColor: '#2c4c9c', // #9453b8 might change back to this #3A8DFF
     elevation: 1,
   },
   announcementTitle: {

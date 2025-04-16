@@ -104,10 +104,10 @@ export const Contact = ({ navigation }) => {
         links={[
           {
             icon: emailIcon,
-            text: "maintenance@accommod8u.com",
+            text: "maintenance@landlordlink.app",
             action: () =>
               Linking.openURL(
-                "mailto:maintenance@accommod8u.com?subject=Maintenance Request&body=Hello, I need assistance with..."
+                "mailto:maintenance@landlordlink.app.com?subject=Maintenance Request&body=Hello, I need assistance with..."
               ),
           },
           {
@@ -134,10 +134,10 @@ export const Contact = ({ navigation }) => {
           },
           {
             icon: emailIcon,
-            text: "leasing@accommod8u.com",
+            text: "leasing@landlordlink.app.com",
             action: () =>
               Linking.openURL(
-                "mailto:leasing@accommod8u.com?subject=Leasing Inquiry&body=Hello, I'm interested in..."
+                "mailto:leasing@landlordlink.app.com?subject=Leasing Inquiry&body=Hello, I'm interested in..."
               ),
           },
           {
@@ -148,7 +148,7 @@ export const Contact = ({ navigation }) => {
       />
 
       {/* Website redirect Button */}
-      <PrimaryButton text="Accommod8u.com" onPress={() => { Linking.openURL("https://www.accommod8u.com/"); }} style={{ marginVertical: 20 }} />
+      <PrimaryButton text="Landlordlink.app" onPress={() => { Linking.openURL("https://www.squarespace.com/showcase/"); }} style={{ marginVertical: 20 }} />
 
       {/* Social Media */}
       <View style={styles.socialContainer}>
