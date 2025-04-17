@@ -68,7 +68,7 @@ export const Contact = ({ navigation }) => {
       <ScrollView
         horizontal
         pagingEnabled
-        //showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
         decelerationRate="normal"
         snapToInterval={cardWidth + 4}
         contentContainerStyle={{ paddingHorizontal: 4 / 2, gap: 4 }}>

@@ -23,6 +23,12 @@ import MiniCard from "../components/MiniCard.js";
 import Feather from '@expo/vector-icons/Feather';
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig.js";
+import { Dimensions, Platform } from 'react-native';
+import { globalStyles } from "../styles/globalStyles.js";
+const { width: screenWidth } = Dimensions.get('window');
+const isWeb = Platform.OS === 'web';
+const isLargeScreen = screenWidth > 768; //tablets, desktops
+
 
 // Icons
 const icons = {
@@ -215,7 +221,7 @@ export function HomeScreen({ navigation }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f9fa" }}>
       <ScrollView
-        style={{ flex: 1 }}
+        style={styles.scrollView}
         contentContainerStyle={{ paddingBottom: 50 }}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={loadRequests} />}>
@@ -601,16 +607,16 @@ export function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   headerContainer: {
     height: 250,
-    marginBottom: 20,
   },
+  scrollView:{flex:1, width: isLargeScreen? 750 : '100%', alignSelf:'center'},
   headerGradient: {
     flex: 1,
-    padding: 20,
+    padding: 12,
     justifyContent: 'flex-end',
   },
   buildingImage: {
     width: '100%',
-    height: '70%',
+    height: '75%',
     borderRadius: 12,
     marginBottom: 15,
   },
@@ -666,7 +672,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   announcementsContainer: {
-    padding: 20,
+    padding: 12,
     backgroundColor: 'white',
     marginBottom: 20,
   },

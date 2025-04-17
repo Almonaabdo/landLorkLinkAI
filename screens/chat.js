@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { db, auth } from '../firebaseConfig';
@@ -13,7 +13,7 @@ const ChatScreen = ({ route }) => {
     const [messages, setMessages] = useState([]); 
     const [newMessage, setNewMessage] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false); 
-
+    const scrollViewRef = useRef(null);
     // user's ID from Firebase
     const currentUserId = auth.currentUser?.uid;
 
@@ -24,6 +24,11 @@ const ChatScreen = ({ route }) => {
         const messagesTableRef = collection(ticketTableRef, 'messages');
         // query for the messages subcollection
         const q = query(messagesTableRef);
+
+        // scroll view to bottom when new messages arrive
+        if (scrollViewRef.current) {
+            scrollViewRef.current.scrollToEnd({ animated: false });
+        }
 
         // real-time listener for messages updates
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
@@ -43,14 +48,14 @@ const ChatScreen = ({ route }) => {
             setMessages(fetchedMessages);
 
             // If no messages exist, add initial system message
-            if (fetchedMessages.length === 0) {
+            if (fetchedMessages.length == 0) {
                 try {
                     const initialMessage = {
-                        text: "Welcome to the maintenance chat! How can we help you today?",
+                        text: "Your maintenance request #" + requestId + " has been initiated.\n\nOur maintenance team will handle it shortly. Please avoid submitting multiple requests for the same issue while we work on it.\n\nHow can we assist you further today?",
                         sender: "system",
                         timestamp: new Date()
                     };
-                    await addDocument(messagesTableRef, initialMessage);
+                    await addDoc(messagesTableRef, initialMessage);
                 } catch (error) {
                     console.error('Error adding initial message:', error);
                 }
@@ -62,7 +67,7 @@ const ChatScreen = ({ route }) => {
 
         // Cleanup function to unsubscribe from listener when component unmounts
         return () => unsubscribe();
-    }, [requestId]); // Re-run effect when requestId changes
+    }, [messages]); // Re-run effect when requestId changes it was requestId before!!!!!!!!
 
 
     const onRefresh = async () => {
@@ -85,10 +90,10 @@ const ChatScreen = ({ route }) => {
                     sender: currentUserId,
                     timestamp: new Date()
                 };
+                setNewMessage('');
 
                 // send message to database table
                 await addDoc(messagesRef, message);
-                setNewMessage('');
 
             } catch (error) {
                 console.error('Error sending message:', error);
@@ -104,18 +109,18 @@ const ChatScreen = ({ route }) => {
                 <Text style={styles.ticketId}>Ticket #{requestId}</Text>
             </View>
 
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1}}>
-                <ScrollView style={{padding:'2%'}} refreshControl={ <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />} >
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1}} keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+                <ScrollView ref={scrollViewRef} style={{padding:'2%', flex:1}} refreshControl={ <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />} >
 
-                    {/* Map through messages and render each one */}
-                    {messages.map((message) => (
+                {/* Map through messages and render each one */}
+                {messages.map((message) => (
 
-                        <View key={message.id} style={[ styles.messageBubble, message.sender === currentUserId? styles.userMessage : styles.otherMessage]}>
-                            <Text style={{color:'white'}}>{message.text}</Text>
-                        </View>
-                    ))}
+                    <View key={message.id} style={[ styles.messageBubble, message.sender === currentUserId? styles.userMessage : styles.otherMessage]}>
+                        <Text style={{color:'white'}}>{message.text}</Text>
+                    </View>
+                ))}
                 </ScrollView>
-
+            
                 {/* text input */}
                 <View style={styles.inputContainer}>
                     <TextInput

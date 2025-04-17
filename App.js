@@ -39,8 +39,14 @@ const Stack = createStackNavigator();
 // Screen Header options
 const defaultScreenOptions = 
 {
-  headerStyle: { backgroundColor: primaryColor, height:80},
-  headerTintColor: '#fff',
+  headerStyle: {
+    backgroundColor: primaryColor,
+    height: 80,
+    elevation: 0, // Android
+    shadowOpacity: 0, // iOS
+  },
+  
+  headerTintColor: '#fff', // header title
 };
 
 // Custom tab bar icon component
