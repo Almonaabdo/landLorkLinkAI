@@ -1,40 +1,48 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-const AnnouncementsList = ({ announcements, navigation }) => {
+const AnnouncementsList = ({ announcements, navigation, isClickable = true }) => {
+  const AnnouncementsContent = () => (
+    <View style={styles.card}>
+      <Text style={styles.title}>Recent updates</Text>
+
+      {announcements.length > 0 ? (
+        announcements.slice(0, 2).map((announcement) => (
+          <View key={announcement.id} style={styles.announcementCard}>
+            <Text style={styles.announcementTitle}>{announcement.title}</Text>
+            <Text style={styles.announcementDate}>
+              {new Date(announcement.createdAt).toLocaleString()}
+            </Text>
+          </View>
+        ))
+      ) : (
+        <Text style={styles.noAnnouncements}>No announcements available</Text>
+      )}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate("Announcements")}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Recent updates</Text>
-
-          {announcements.length > 0 ? (
-            announcements.slice(0, 2).map((announcement) => (
-              <View key={announcement.id} style={styles.announcementCard}>
-                <Text style={styles.announcementTitle}>{announcement.title}</Text>
-                <Text style={styles.announcementDate}>
-                  {new Date(announcement.createdAt).toLocaleString()}
-                </Text>
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noAnnouncements}>No announcements available</Text>
-          )}
-        </View>
-      </TouchableOpacity>
+      {isClickable ? (
+        <TouchableOpacity onPress={() => navigation.navigate("Announcements")}>
+          <AnnouncementsContent />
+        </TouchableOpacity>
+      ) : (
+        <AnnouncementsContent />
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal:"4%",
-    marginVertical:"1%",
+    paddingHorizontal: "4%",
+    marginVertical: "1%",
   },
-  card: 
+  card:
   {
-    alignSelf:"start",
-    width:"100%",
+    alignSelf: "start",
+    width: "100%",
     backgroundColor: '#cad2e3',
     borderRadius: 10,
     padding: 10,
@@ -51,7 +59,7 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 18,
     fontWeight: '600',
-    alignSelf:"center",
+    alignSelf: "center",
     marginBottom: 12,
   },
   announcementCard: {
