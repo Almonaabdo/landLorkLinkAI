@@ -17,10 +17,10 @@ import { doc, setDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, listAll } from 'firebase/storage';
 import { PrimaryButton } from "../components/Buttons";
 import Feather from '@expo/vector-icons/Feather';
-import * as ImagePicker from 'expo-image-picker';
+import { globalStyles } from "../styles/globalStyles";
 import { getStorage, ref as storageRef, uploadBytes } from 'firebase/storage';
 // Logo
-const logoImg = require(".././assets/landlordlink.jpg");
+const logoImg = require(".././assets/landlordlink.png");
 const defaultProfilePicture = "https://firebasestorage.googleapis.com/v0/b/accommod8u-4a0a4.appspot.com/o/defaultProfilePicture.jpg?alt=media";
 
 // global variables
@@ -125,7 +125,7 @@ export function SignUpScreen({ navigation }) {
       style={{ flex: 1 }}>
 
       <ScrollView
-        style={styles.container}
+        style={globalStyles.ScrollViewContainer}
         contentContainerStyle={{ paddingBottom: 50 }}
       //showsVerticalScrollIndicator={false}
       >
@@ -133,7 +133,7 @@ export function SignUpScreen({ navigation }) {
         <StatusBar barStyle="light-content" />
 
         {/*COMPANY LOGO */}
-        <Image source={logoImg} style={styles.logo} />
+        <Image source={logoImg} style={globalStyles.companyLogo} />
 
         {/*Loading icon */}
         <ActivityIndicator size={"large"} color={"purple"} animating={isLoading} />
@@ -145,7 +145,7 @@ export function SignUpScreen({ navigation }) {
         {/* Form Fields */}
         <Text style={styles.label}>First Name</Text>
         <TextInput
-          style={styles.textInput}
+          style={globalStyles.textInput}
           placeholder="Enter First Name"
           placeholderTextColor={"black"}
           onChangeText={(text) => { setFirstName(text); setViewError(0); }}
@@ -155,7 +155,7 @@ export function SignUpScreen({ navigation }) {
 
         <Text style={styles.label}>Last Name</Text>
         <TextInput
-          style={styles.textInput}
+          style={globalStyles.textInput}
           placeholder="Enter Last Name"
           placeholderTextColor={"black"}
           onChangeText={(text) => { setLastName(text); setViewError(0); }}
@@ -165,7 +165,7 @@ export function SignUpScreen({ navigation }) {
 
         <Text style={styles.label}>Email</Text>
         <TextInput
-          style={styles.textInput}
+          style={globalStyles.textInput}
           placeholder="Enter Email"
           placeholderTextColor={"black"}
           onChangeText={(text) => { setEmail(text); setViewError(0); }}
@@ -178,7 +178,7 @@ export function SignUpScreen({ navigation }) {
         <Text style={styles.label}>Password</Text>
         <TextInput
           secureTextEntry={true}
-          style={styles.textInput}
+          style={globalStyles.textInput}
           placeholder="Enter Password"
           placeholderTextColor={"black"}
           onChangeText={(text) => { setPassword(text); setViewError(0); }}
@@ -189,7 +189,7 @@ export function SignUpScreen({ navigation }) {
         <Text style={styles.label}>Confirm Password</Text>
         <TextInput
           secureTextEntry={true}
-          style={styles.textInput}
+          style={globalStyles.textInput}
           placeholder="Confirm Password"
           placeholderTextColor={"black"}
           onChangeText={(text) => { setConfirmPassword(text); setViewError(0); }}
@@ -263,21 +263,6 @@ export function SignUpScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-
-  logo: {
-    width: '105%',
-    height: 145,
-    resizeMode: 'stretch',
-    borderRadius: 12,
-    alignSelf: 'center',
-    marginVertical:30
-  },
 
   titleHeader: {
     fontSize: 28,
@@ -298,16 +283,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
 
-  textInput: {
-    height: 50,
-    borderColor: '#cccccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#fafafa',
-    fontSize: 16,
-  },
-
   errorText: {
     color: 'red',
     textAlign: 'center',
@@ -320,30 +295,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontSize: 14,
     fontWeight: '500',
-  },
-
-  profilePictureContainer: {
-    alignItems: 'center',
-    marginVertical: 30,
-  },
-
-  profilePicture: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 12,
-  },
-
-  changePictureButton: {
-    backgroundColor: '#2c4c9c',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-
-  changePictureText: {
-    color: 'white',
-    textAlign: 'center',
-    fontSize: 14,
   },
 });

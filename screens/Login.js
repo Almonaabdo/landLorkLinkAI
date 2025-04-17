@@ -16,13 +16,14 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { PrimaryButton } from "../components/Buttons";
 import Feather from '@expo/vector-icons/Feather';
 import { Dimensions, Platform } from 'react-native';
+import { globalStyles } from "../styles/globalStyles";
 
 const { width: screenWidth } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
 const isLargeScreen = screenWidth > 768; //tablets, desktops
 
 // Logo
-const logoImg = require("../assets/landlordlink.jpg");
+const logoImg = require("../assets/landlordlink.png");
 
 // global variables
 const invalidEmailError = -2;
@@ -56,12 +57,12 @@ export function LoginScreen({ navigation })
   };
 
   return (
-    <ScrollView style={styles.container} >
+    <ScrollView style={globalStyles.ScrollViewContainer} >
       <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}>
         <StatusBar barStyle="light-content" />
 
         {/*COMPANY LOGO */}
-        <Image source={logoImg} style={styles.logo} />
+        <Image source={logoImg} style={globalStyles.companyLogo} />
 
         {/*Loading icon */}
         <ActivityIndicator size={"large"} color={"blue"} animating={viewError === 1} />
@@ -75,7 +76,7 @@ export function LoginScreen({ navigation })
         {/* EMAIL ADDRESS */}
         <Text style={styles.label}>Email</Text>
           <TextInput
-            style={styles.textInput}
+            style={globalStyles.textInput}
             placeholder="Enter Email"
             placeholderTextColor={"black"}
             onChangeText={(text) => { setEmail(text); setViewError(0); }}
@@ -85,7 +86,7 @@ export function LoginScreen({ navigation })
           <Text style={styles.label}>Password</Text>
           <TextInput
             secureTextEntry={true}
-            style={styles.textInput}
+            style={globalStyles.textInput}
             placeholder="Enter Password"
             placeholderTextColor={"black"}
             onChangeText={(text) => { setPassword(text); setViewError(0); }}
@@ -101,7 +102,7 @@ export function LoginScreen({ navigation })
         {viewError === invalidEmailError && <Text style={styles.errorText}>Invalid Email Address</Text>}
 
         {/* NOT A MEMBER */}
-        <TouchableOpacity style={styles.signUpContainer} onPress={() => navigation.replace("Signup")}>
+        <TouchableOpacity style={styles.notaMember} onPress={() => navigation.replace("Signup")}>
           <Text style={styles.signUpText}>Not A Member?</Text>
         </TouchableOpacity>
 
@@ -132,21 +133,6 @@ export function LoginScreen({ navigation })
 
 // styling
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#ffffff",
-    flex: 1,
-    paddingTop: isWeb ? 40 : 0,
-    paddingHorizontal: 18,
-  },
-
-  logo: {
-    width: '105%',
-    height: isLargeScreen ? 200 : 145,
-    resizeMode: 'stretch',
-    borderRadius: 12,
-    alignSelf: 'center',
-    marginVertical: 30,
-  },
 
   titleHeader: {
     fontSize: isLargeScreen ? 36 : 28,
@@ -168,17 +154,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 
-  textInput: {
-    height: 50,
-    borderColor: '#cccccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: isLargeScreen ? 18 : 16,
-    backgroundColor: '#fafafa',
-    marginBottom: 20,
-  },
-
   errorText: {
     color: 'red',
     marginTop: 10,
@@ -186,14 +161,16 @@ const styles = StyleSheet.create({
     fontSize: isLargeScreen ? 16 : 14,
   },
 
-  signUpContainer: {
-    alignSelf: "center",
-    marginTop: 25,
-  },
+
 
   signUpText: {
     color: '#2c4c9c',
     fontSize: isLargeScreen ? 16 : 14,
     fontWeight: '500',
   },
+
+  notaMember:{
+    alignSelf:"center",
+    marginVertical:"5%",
+  }
 });

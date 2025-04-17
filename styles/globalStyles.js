@@ -5,22 +5,31 @@ const borderColor = "#DDD";
 const inputBackground = "#dde2ed";
 const fontPrimary = "System";
 
+
+import { Dimensions, Platform } from 'react-native';
+import { ScrollView } from "react-native-web";
+
+const { width: screenWidth } = Dimensions.get('window');
+const isWeb = Platform.OS === 'web';
+const isLargeScreen = screenWidth > 768; //tablets, desktops
+
 export const globalStyles = StyleSheet.create({
-  companyImage: {
-    width: "100%",
-    resizeMode: "cover",
-    alignSelf: "center",
-    height: 140,
-    borderRadius: 16,
-    marginBottom: 20,
+  companyLogo: {
+    width: '105%',
+    height: isLargeScreen ? 200 : 170,
+    resizeMode: 'stretch',
+    borderRadius: 12,
+    alignSelf: 'center',
+    marginVertical: 30,
   },
 
-  smallLogo: {
-    width: 80,
-    resizeMode: "contain",
-    alignSelf: "center",
-    marginTop: -16,
-    marginBottom: 10,
+  ScrollViewContainer:{
+    flex:1,
+    paddingHorizontal:"5%",
+    paddingVertical: '1%',
+    backgroundColor: "#ffffff",
+    width: isLargeScreen ? 750 : '100%',
+    alignSelf:"center"
   },
 
   container: {
@@ -46,29 +55,14 @@ export const globalStyles = StyleSheet.create({
   },
 
   textInput: {
-    width: "100%",
     height: 50,
-    borderColor: borderColor,
+    borderColor: '#cccccc',
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 16,
-    backgroundColor: inputBackground,
-    fontSize: 15,
-    color: "#333",
-    marginBottom: 16,
-  },
-
-  textInputSignup: {
-    width: "100%",
-    height: 45,
-    borderColor: borderColor,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    backgroundColor: inputBackground,
-    fontSize: 15,
-    color: "#333",
-    marginBottom: 14,
+    paddingHorizontal: 12,
+    fontSize: isLargeScreen ? 18 : 16,
+    backgroundColor: '#fafafa',
+    marginBottom: 10,
   },
 
 
