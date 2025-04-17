@@ -293,7 +293,10 @@ export function HomeScreen({ navigation }) {
               <Text style={styles.viewAllText}>View All</Text>
             </TouchableOpacity>
           </View>
-          <AnnouncementsList announcements={announcements.slice(0, 3)} />
+          <AnnouncementsList
+            announcements={announcements.slice(0, 3)}
+            isClickable={false}
+          />
         </View>
 
         {/* Maintenance Status Section */}
@@ -705,5 +708,30 @@ const styles = StyleSheet.create({
     width: 1,
     backgroundColor: '#ddd',
     marginHorizontal: 20,
+  },
+  announcementsList: {
+    marginTop: 10,
+  },
+  announcementItem: {
+    backgroundColor: '#f8f9fa',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  announcementTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2c4c9c',
+    marginBottom: 5,
+  },
+  announcementDate: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 8,
+  },
+  announcementContent: {
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 20,
   },
 });
