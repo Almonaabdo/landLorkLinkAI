@@ -109,7 +109,7 @@ export function Dashboard({ navigation }) {
       {/* APPARTMENT MODAL */}
       <Modal
         visible={viewApartment}
-        animationType="fade"
+        animationType="slide"
         presentationStyle="pageSheet"
         onRequestClose={() => setViewApartment(false)}>
         <View style={styles.modalContainer}>
@@ -150,7 +150,7 @@ export function Dashboard({ navigation }) {
       {/* NFC Scanner Modal */}
       <Modal
         visible={viewNfcModal}
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setViewNfcModal(false)}>
 
         <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#2c2c2c", padding: 10 }}>

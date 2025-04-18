@@ -12,6 +12,7 @@
 import React, { useState } from "react";
 import { RefreshControl, Text, Linking, Image, Animated, TouchableOpacity, Modal, TextInput, StatusBar, ScrollView, View, SafeAreaView, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as Haptics from 'expo-haptics';
 import { SelectList } from 'react-native-dropdown-select-list';
 import { PrimaryButton } from "../components/Buttons.js";
 import { addDocument, fetchDocuments } from "../Functions.js";
@@ -176,6 +177,8 @@ export function HomeScreen({ navigation }) {
   };
   // function to handle the NFS modal screen
   const handleNfcModalOpen = () => {
+    // send soft vibration when Modal is opened
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     setIsNfcModalVisible(true);
     startFading();
     setTimeout(() => setIsNfcModalVisible(false), 6000);
@@ -249,10 +252,10 @@ export function HomeScreen({ navigation }) {
         <View style={styles.quickActionsContainer}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
+
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => setIsMaintenanceModalVisible(true)}
-            >
+              onPress={() =>{ Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid); setIsMaintenanceModalVisible(true)}}>
               <View style={styles.actionIconContainer}>
                 <Image source={icons.WrenchIcon} style={styles.actionIcon} />
               </View>
@@ -271,7 +274,7 @@ export function HomeScreen({ navigation }) {
 
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => setIsIncidentModalVisible(true)}
+              onPress={() => {Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);setIsIncidentModalVisible(true)}}
             >
               <View style={styles.actionIconContainer}>
                 <Image source={icons.incidentIcon} style={styles.actionIcon} />
@@ -281,7 +284,7 @@ export function HomeScreen({ navigation }) {
 
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => setIsEmergencyModalVisible(true)}
+              onPress={() =>{Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid); setIsEmergencyModalVisible(true)}}
             >
               <View style={styles.actionIconContainer}>
                 <Image source={icons.emergencyIcon} style={styles.actionIcon} />
@@ -444,7 +447,7 @@ export function HomeScreen({ navigation }) {
                   <Text style={{ fontSize: 16, color: '#333', fontWeight: '500', marginLeft: 8 }}>Add Image</Text>
                 </View>
                 <TouchableOpacity
-                  onPress={() => setImagePickerModalVisible(true)}
+                  onPress={() =>  { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setImagePickerModalVisible(true)}}
                   style={{
                     height: 100,
                     borderWidth: 1,
@@ -533,31 +536,56 @@ export function HomeScreen({ navigation }) {
         </Modal>
 
         {/* NFC Scanner Modal */}
-        <Modal
-          visible={isNfcModalVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setIsNfcModalVisible(false)}>
-          <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#2c2c2c" }}>
-
-
-            {/*Down Arrow Icon*/}
-            <TouchableOpacity onPress={() => setIsNfcModalVisible(false)} style={{ marginTop: "25%" }}>
-              <Feather name="arrow-down" size={64} color="white" />
+        <Modal visible={isNfcModalVisible} animationType="fade" transparent={true}onRequestClose={() => setIsNfcModalVisible(false)}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.90)',
+              paddingHorizontal: 24,
+            }}>
+            {/* Close Icon */}
+            <TouchableOpacity
+              onPress={() => setIsNfcModalVisible(false)}
+              style={{
+                position: 'absolute',
+                top: 50,
+                right: 30,
+                padding: 8,
+                borderRadius: 30,
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <Feather name="x" size={28} color="#fff" />
             </TouchableOpacity>
 
-
-            {/*Animated SCAN IMAGE*/}
+            {/* Scan Image Animation */}
             <Animated.Image
               style={{
-                width: 400,
+                width: 300,
                 height: 300,
                 opacity: fadeAnim,
-                marginTop: '50%',
-                borderRadius: 20
+                borderRadius: 24,
+                marginBottom: 20,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 10 },
+                shadowOpacity: 0.3,
+                shadowRadius: 20,
+                elevation: 10,
               }}
-              source={icons.NfcScannerScreen} />
-
+              source={icons.NfcScannerScreen}
+            />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 18,
+                textAlign: 'center',
+                marginTop: 16,
+                opacity: 0.8,
+              }}>
+              Hold your device near the NFC tag
+            </Text>
           </View>
         </Modal>
 
